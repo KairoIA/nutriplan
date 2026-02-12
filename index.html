@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="NutriPlan">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#1a1a2e">
+<link rel="apple-touch-icon" sizes="180x180" href="icon.png">
+<link rel="icon" type="image/png" sizes="180x180" href="icon.png">
+<link rel="manifest" href="manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<title>NutriPlan Pro</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--primary:#1a1a2e;--primary-light:#16213e;--accent:#0f3460;--accent-bright:#e94560;--accent-hover:#c73a52;--success:#059669;--success-light:#d1fae5;--danger:#dc2626;--warning:#d97706;--warning-light:#fef3c7;--protein-color:#be123c;--carbs-color:#15803d;--fats-color:#c2410c;--dairy-color:#1d4ed8;--bg-main:#f8fafc;--bg-secondary:#f1f5f9;--card-bg:#fff;--text-primary:#0f172a;--text-secondary:#475569;--text-tertiary:#94a3b8;--border-light:#e2e8f0;--border-medium:#cbd5e1;--shadow-sm:0 1px 2px rgba(0,0,0,.05);--shadow-md:0 4px 6px -1px rgba(0,0,0,.07),0 2px 4px -2px rgba(0,0,0,.05);--shadow-lg:0 10px 15px -3px rgba(0,0,0,.08),0 4px 6px -4px rgba(0,0,0,.05);--r:6px;--r-md:10px;--r-lg:14px}
+body{font-family:"Inter",-apple-system,sans-serif;background:var(--bg-main);min-height:100vh;padding:20px;color:var(--text-primary);line-height:1.6;-webkit-user-select:none;user-select:none}
+.container{max-width:1600px;margin:0 auto}
+.header{margin-bottom:24px;padding:24px 28px;background:linear-gradient(135deg,var(--primary),var(--accent),#1a365d);border-radius:var(--r-lg);color:#fff;position:relative;overflow:hidden}
+.header::before{content:"";position:absolute;top:-50%;right:-10%;width:300px;height:300px;background:radial-gradient(circle,rgba(233,69,96,.15),transparent 70%);border-radius:50%}
+.header h1{font-size:28px;font-weight:700;letter-spacing:-.03em;position:relative}
+.header p{color:rgba(255,255,255,.7);font-size:14px;margin-top:4px;position:relative}
+.controls{background:var(--card-bg);padding:16px 20px;border-radius:var(--r-md);margin-bottom:20px;box-shadow:var(--shadow-sm);border:1px solid var(--border-light);display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.toggle-container{display:flex;align-items:center;gap:10px}
+.toggle-label{font-weight:500;color:var(--text-secondary);font-size:13px}
+.toggle-switch{position:relative;width:44px;height:24px;background:var(--border-medium);border-radius:12px;cursor:pointer;transition:background .25s}
+.toggle-switch.active{background:var(--accent-bright)}
+.toggle-slider{position:absolute;top:2px;left:2px;width:20px;height:20px;background:#fff;border-radius:50%;transition:transform .25s;box-shadow:0 1px 3px rgba(0,0,0,.15)}
+.toggle-switch.active .toggle-slider{transform:translateX(20px)}
+.actions{display:flex;gap:8px;margin-left:auto;flex-wrap:wrap}
+.btn{padding:8px 14px;border:1px solid var(--border-medium);border-radius:var(--r);font-weight:500;cursor:pointer;transition:all .2s;font-family:"Inter",sans-serif;font-size:13px;background:var(--card-bg);color:var(--text-primary);white-space:nowrap}
+.btn:hover{background:var(--bg-secondary);border-color:var(--text-tertiary)}
+.btn-primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn-primary:hover{background:var(--primary-light)}
+.btn-danger{color:var(--danger);border-color:#fca5a5;background:#fef2f2}
+.btn-danger:hover{background:var(--danger);color:#fff;border-color:var(--danger)}
+.main-grid{display:grid;grid-template-columns:300px 1fr;gap:20px}
+.macros-summary{background:var(--card-bg);padding:20px;border-radius:var(--r-md);box-shadow:var(--shadow-sm);border:1px solid var(--border-light);position:sticky;top:20px}
+.macros-summary h2{margin-bottom:16px;font-size:16px;font-weight:600}
+.macro-item{margin-bottom:14px}
+.macro-label{display:flex;justify-content:space-between;margin-bottom:6px;font-weight:500;font-size:13px;color:var(--text-secondary)}
+.macro-value{font-family:"JetBrains Mono",monospace;color:var(--text-primary);font-size:12px}
+.macro-bar{height:6px;background:var(--bg-secondary);border-radius:3px;overflow:hidden}
+.macro-fill{height:100%;transition:width .4s ease;border-radius:3px;width:0}
+.macro-fill.calories{background:linear-gradient(90deg,var(--primary),var(--accent))}
+.macro-fill.protein{background:linear-gradient(90deg,#e11d48,#be123c)}
+.macro-fill.carbs{background:linear-gradient(90deg,#22c55e,#15803d)}
+.macro-fill.fats{background:linear-gradient(90deg,#f97316,#c2410c)}
+.meal-plan{background:var(--card-bg);padding:20px;border-radius:var(--r-md);box-shadow:var(--shadow-sm);border:1px solid var(--border-light)}
+.meal-plan h2{margin-bottom:16px;font-size:16px;font-weight:600}
+.meal-slot{background:var(--bg-secondary);padding:14px;border-radius:var(--r);margin-bottom:12px;border:2px dashed var(--border-medium);min-height:70px;transition:all .25s}
+.meal-slot.drag-over{border-color:var(--accent-bright);background:rgba(233,69,96,.04);box-shadow:inset 0 0 0 1px rgba(233,69,96,.1)}
+.meal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.meal-title{font-weight:600;font-size:14px}
+.meal-macros{font-size:11px;color:var(--text-tertiary);font-family:"JetBrains Mono",monospace}
+.meal-items{display:flex;flex-direction:column;gap:6px}
+.meal-item{background:#fff;padding:10px 12px;border-radius:var(--r);display:flex;justify-content:space-between;align-items:center;border:1px solid var(--border-light)}
+.meal-item-name{font-weight:500;font-size:13px}
+.meal-item-info{font-size:11px;color:var(--text-tertiary);font-family:"JetBrains Mono",monospace;margin-top:2px}
+.meal-item-portion{display:flex;align-items:center;gap:6px}
+.portion-btn{width:24px;height:24px;border:1px solid var(--border-medium);border-radius:4px;background:var(--card-bg);color:var(--text-primary);cursor:pointer;font-weight:600;font-size:14px;transition:all .15s;display:flex;align-items:center;justify-content:center}
+.portion-btn:hover{background:var(--accent-bright);color:#fff;border-color:var(--accent-bright)}
+.portion-display{font-family:"JetBrains Mono",monospace;font-weight:500;min-width:32px;text-align:center;font-size:12px;color:var(--text-secondary)}
+.remove-btn{background:transparent;color:var(--text-tertiary);border:1px solid var(--border-light);padding:3px 7px;border-radius:4px;cursor:pointer;font-size:11px;transition:all .15s}
+.remove-btn:hover{background:var(--danger);color:#fff;border-color:var(--danger)}
+.suggestions{margin-top:10px;padding-top:10px;border-top:1px solid var(--border-light)}
+.suggestions-title{font-size:12px;font-weight:600;color:var(--text-secondary);margin-bottom:6px}
+.suggestion-pills{display:flex;flex-direction:column;gap:4px}
+.suggestion-pill{background:#fff;border:1px solid var(--border-light);padding:7px 10px;border-radius:var(--r);font-size:12px;font-weight:500;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.suggestion-meta{display:flex;gap:6px;flex-shrink:0}
+.suggestion-badge{padding:1px 6px;border-radius:3px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.03em}
+.badge-fast{background:var(--success-light);color:var(--success)}
+.badge-elaborate{background:var(--warning-light);color:var(--warning)}
+.badge-style{background:var(--bg-secondary);color:var(--text-secondary)}
+.foods-section{background:var(--card-bg);padding:20px;border-radius:var(--r-md);box-shadow:var(--shadow-sm);border:1px solid var(--border-light);margin-top:20px}
+.foods-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;gap:16px;flex-wrap:wrap}
+.foods-header h2{font-size:16px;font-weight:600;white-space:nowrap}
+.search-box{position:relative;flex:1;max-width:350px;min-width:200px}
+.search-input{width:100%;padding:8px 12px;border:1px solid var(--border-medium);border-radius:var(--r);font-family:"Inter",sans-serif;font-size:13px;transition:all .2s;background:var(--bg-secondary)}
+.search-input:focus{outline:none;border-color:var(--accent-bright);box-shadow:0 0 0 3px rgba(233,69,96,.1);background:#fff}
+.category-tabs{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap}
+.category-tab{padding:6px 12px;border:1px solid var(--border-light);border-radius:20px;background:#fff;cursor:pointer;font-weight:500;transition:all .2s;font-size:12px;color:var(--text-secondary);white-space:nowrap}
+.category-tab:hover{border-color:var(--accent-bright);color:var(--accent-bright)}
+.category-tab.active{background:var(--accent-bright);color:#fff;border-color:var(--accent-bright)}
+.foods-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:10px;max-height:520px;overflow-y:auto;padding:2px}
+.foods-grid::-webkit-scrollbar{width:6px}
+.foods-grid::-webkit-scrollbar-track{background:var(--bg-secondary);border-radius:3px}
+.foods-grid::-webkit-scrollbar-thumb{background:var(--border-medium);border-radius:3px}
+.food-card{background:#fff;padding:12px;border-radius:var(--r);border:1px solid var(--border-light);cursor:grab;transition:all .2s;-webkit-touch-callout:none;-webkit-user-select:none;touch-action:pan-y}
+.food-card .food-tap-add{display:none;position:absolute;top:6px;right:6px;width:28px;height:28px;border-radius:50%;background:var(--accent-bright);color:#fff;border:none;font-size:18px;font-weight:700;cursor:pointer;align-items:center;justify-content:center;box-shadow:var(--shadow-md);z-index:2}
+@media(pointer:coarse){.food-card .food-tap-add{display:flex}.food-card{position:relative;padding-right:40px}}
+.food-card:hover{transform:translateY(-1px);box-shadow:var(--shadow-md);border-color:var(--border-medium)}
+.food-card.dragging{opacity:.4;transform:scale(.97)}
+.food-card.protein{border-left:3px solid var(--protein-color)}
+.food-card.carbs{border-left:3px solid var(--carbs-color)}
+.food-card.fats{border-left:3px solid var(--fats-color)}
+.food-card.dairy{border-left:3px solid var(--dairy-color)}
+.food-name{font-weight:600;margin-bottom:3px;font-size:13px}
+.food-portion{font-size:11px;color:var(--text-tertiary);margin-bottom:6px}
+.food-macros{display:grid;grid-template-columns:1fr 1fr;gap:2px;font-size:11px;font-family:"JetBrains Mono",monospace}
+.food-macro{display:flex;justify-content:space-between}
+.food-macro-label{color:var(--text-tertiary)}
+.food-macro-value{font-weight:500;color:var(--text-primary)}
+.touch-ghost{position:fixed;z-index:9999;pointer-events:none;background:#fff;padding:10px 14px;border-radius:var(--r);box-shadow:var(--shadow-lg);border:2px solid var(--accent-bright);font-size:13px;font-weight:600;color:var(--text-primary);opacity:.92;max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;-webkit-transform:translate3d(0,0,0);transform:translate3d(0,0,0)}
+.tap-meal-picker{display:none;position:fixed;bottom:0;left:0;right:0;background:#fff;z-index:1001;box-shadow:0 -4px 20px rgba(0,0,0,.15);border-radius:16px 16px 0 0;padding:16px 16px 28px;max-height:60vh;overflow-y:auto}
+.tap-meal-picker.active{display:block}
+.tap-meal-picker-title{font-weight:600;font-size:15px;margin-bottom:12px;text-align:center;color:var(--text-primary)}
+.tap-meal-picker-food{font-size:13px;color:var(--text-secondary);text-align:center;margin-bottom:14px}
+.tap-meal-btn{width:100%;padding:14px 16px;background:var(--bg-secondary);border:1px solid var(--border-light);border-radius:var(--r);margin-bottom:8px;font-family:'Inter',sans-serif;font-size:14px;font-weight:500;cursor:pointer;text-align:left;transition:all .15s;color:var(--text-primary)}
+.tap-meal-btn:hover,.tap-meal-btn:active{background:var(--accent-bright);color:#fff;border-color:var(--accent-bright)}
+.tap-meal-cancel{width:100%;padding:12px;background:transparent;border:1px solid var(--border-medium);border-radius:var(--r);font-family:'Inter',sans-serif;font-size:14px;font-weight:500;cursor:pointer;margin-top:4px;color:var(--text-secondary)}
+.tap-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(15,23,42,.4);z-index:1000}
+.tap-overlay.active{display:block}
+.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(15,23,42,.5);z-index:1000;backdrop-filter:blur(4px)}
+.modal.active{display:flex;align-items:center;justify-content:center}
+.modal-content{background:#fff;padding:24px;border-radius:var(--r-lg);max-width:480px;width:90%;box-shadow:var(--shadow-lg)}
+.modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.modal-title{font-size:17px;font-weight:600}
+.modal-close{background:none;border:none;font-size:22px;cursor:pointer;color:var(--text-tertiary);padding:0;width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:4px;transition:all .15s}
+.modal-close:hover{background:var(--bg-secondary);color:var(--text-primary)}
+.saved-diets-list{display:flex;flex-direction:column;gap:6px;max-height:400px;overflow-y:auto}
+.saved-diet-item{padding:12px;background:var(--bg-secondary);border-radius:var(--r);display:flex;justify-content:space-between;align-items:center;cursor:pointer;transition:all .15s;border:1px solid var(--border-light)}
+.saved-diet-item:hover{background:#fff;border-color:var(--accent-bright)}
+.saved-diet-name{font-weight:500;font-size:14px}
+.saved-diet-date{font-size:11px;color:var(--text-tertiary)}
+@media(max-width:1200px){.main-grid{grid-template-columns:1fr}.macros-summary{position:static}}
+@media(max-width:768px){body{padding:12px}.header{padding:18px 20px}.header h1{font-size:22px}.controls{flex-direction:column;align-items:stretch}.actions{margin-left:0}.btn{flex:1;text-align:center;font-size:12px;padding:8px 10px}.foods-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));max-height:400px}.meal-macros{font-size:10px}.category-tab{font-size:11px;padding:5px 10px}}
+@media(max-width:480px){.foods-grid{grid-template-columns:1fr 1fr}.food-card{padding:10px}.food-name{font-size:12px}}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="header"><h1>🥗 NutriPlan Pro</h1><p>Planificador nutricional con ideas de recetas inteligentes</p></div>
+<noscript>
+<div style="background:linear-gradient(135deg,#1a1a2e,#0f3460);border-radius:16px;padding:24px;margin-bottom:20px;text-align:center;font-family:-apple-system,sans-serif;color:#fff">
+<p style="font-size:20px;font-weight:700;margin-bottom:8px">🥗 NutriPlan Pro</p>
+<p style="font-size:14px;opacity:.8;margin-bottom:18px">Esta app necesita un navegador para funcionar.</p>
+<div style="text-align:left;background:rgba(255,255,255,.1);padding:18px;border-radius:10px;font-size:14px;line-height:1.9">
+<strong>📱 Para usar en iPhone/Android:</strong><br>
+Pide el <strong>enlace web</strong> en vez del archivo.<br>
+Se abre directo en Safari/Chrome y funciona al 100%.<br><br>
+<strong>💡 Si recibes el archivo:</strong><br>
+1. Guárdalo en tu ordenador<br>
+2. Ábrelo con Chrome, Safari o Firefox<br>
+3. Funciona perfectamente en escritorio
+</div>
+</div>
+</noscript>
+<div class="controls">
+<div class="toggle-container"><span class="toggle-label">Sin legumbres</span><div class="toggle-switch" id="legumbresToggle"><div class="toggle-slider"></div></div><span class="toggle-label">Con legumbres</span></div>
+<div class="actions"><button class="btn" id="saveBtn">💾 Guardar</button><button class="btn" id="loadBtn">📂 Cargar</button><button class="btn btn-danger" id="clearBtn">🗑️ Limpiar</button></div>
+</div>
+<div class="main-grid">
+<div class="sidebar"><div class="macros-summary"><h2>📊 Resumen Diario</h2>
+<div class="macro-item"><div class="macro-label"><span>🔥 Calorías</span><span class="macro-value"><span id="totalCalories">0</span> / <span id="targetCalories">2500</span></span></div><div class="macro-bar"><div class="macro-fill calories" id="caloriesBar" style="width:0%"></div></div></div>
+<div class="macro-item"><div class="macro-label"><span>💪 Proteínas</span><span class="macro-value"><span id="totalProtein">0</span>g / <span id="targetProtein">150</span>g</span></div><div class="macro-bar"><div class="macro-fill protein" id="proteinBar" style="width:0%"></div></div></div>
+<div class="macro-item"><div class="macro-label"><span>🌾 Carbohidratos</span><span class="macro-value"><span id="totalCarbs">0</span>g / <span id="targetCarbs">330</span>g</span></div><div class="macro-bar"><div class="macro-fill carbs" id="carbsBar" style="width:0%"></div></div></div>
+<div class="macro-item"><div class="macro-label"><span>🥑 Grasas</span><span class="macro-value"><span id="totalFats">0</span>g / <span id="targetFats">60</span>g</span></div><div class="macro-bar"><div class="macro-fill fats" id="fatsBar" style="width:0%"></div></div></div>
+</div></div>
+<div class="meal-plan"><h2>🍽️ Plan de Comidas</h2><div id="mealsContainer"></div></div>
+</div>
+<div class="foods-section">
+<div class="foods-header"><h2>🥘 Alimentos Disponibles</h2><div class="search-box"><input type="text" class="search-input" id="searchInput" placeholder="🔍 Buscar alimentos..."></div></div>
+<div class="category-tabs" id="categoryTabs"></div>
+<div class="foods-grid" id="foodsGrid"></div>
+</div>
+</div>
+<div class="modal" id="saveModal"><div class="modal-content"><div class="modal-header"><h3 class="modal-title">💾 Guardar Dieta</h3><button class="modal-close" onclick="closeSaveModal()">×</button></div><input type="text" id="dietName" class="search-input" placeholder="Nombre de la dieta" style="width:100%;margin-bottom:16px"><button class="btn btn-primary" onclick="saveDiet()" style="width:100%">Guardar</button></div></div>
+<div class="modal" id="loadModal"><div class="modal-content"><div class="modal-header"><h3 class="modal-title">📂 Dietas Guardadas</h3><button class="modal-close" onclick="closeLoadModal()">×</button></div><div class="saved-diets-list" id="savedDietsList"></div></div></div>
+<div class="tap-overlay" id="tapOverlay"></div>
+<div class="tap-meal-picker" id="tapMealPicker">
+<div class="tap-meal-picker-title">Añadir a comida</div>
+<div class="tap-meal-picker-food" id="tapFoodName"></div>
+<div id="tapMealButtons"></div>
+<button class="tap-meal-cancel" onclick="closeTapPicker()">Cancelar</button>
+</div>
+<script>
+const foodsDatabase={
+proteinas_bajas:[
+{name:'Pollo',gr:50,portion:'1 ración',kcal:46,fat:0,protein:11.5,carbs:0,category:'protein'},
+{name:'Pavo',gr:60,portion:'1 ración',kcal:57,fat:1,protein:10,carbs:0,category:'protein'},
+{name:'Lubina',gr:60,portion:'1 ración',kcal:53,fat:1,protein:11,carbs:0,category:'protein'},
+{name:'Gallo',gr:70,portion:'1 ración',kcal:53,fat:1,protein:11,carbs:0,category:'protein'},
+{name:'Rape',gr:60,portion:'1 ración',kcal:53,fat:1,protein:11,carbs:0,category:'protein'},
+{name:'Solomillo de ternera',gr:55,portion:'1 ración',kcal:53,fat:1,protein:11,carbs:0,category:'protein'},
+{name:'Claras de huevo',gr:100,portion:'1 ración',kcal:46,fat:0,protein:11,carbs:0.5,category:'protein'},
+{name:'Merluza',gr:75,portion:'1 ración',kcal:50,fat:1,protein:12,carbs:0,category:'protein'},
+{name:'Bacalao',gr:60,portion:'1 ración',kcal:50,fat:1,protein:9,carbs:0,category:'protein'}],
+proteinas_medias:[
+{name:'Conejo',gr:50,portion:'1 ración',kcal:67,fat:3,protein:10,carbs:0,category:'protein'},
+{name:'Jamón cocido',gr:60,portion:'1 ración',kcal:58,fat:2,protein:10,carbs:0,category:'protein'},
+{name:'Filete de ternera',gr:40,portion:'1 ración',kcal:62,fat:2,protein:11,carbs:0,category:'protein'},
+{name:'Solomillo de cerdo',gr:45,portion:'1 ración',kcal:67,fat:3,protein:10,carbs:0,category:'protein'},
+{name:'Cecina',gr:25,portion:'1 ración',kcal:67,fat:3,protein:10,carbs:0,category:'protein'},
+{name:'Lomo de cerdo o pavo',gr:35,portion:'1 ración',kcal:70,fat:2,protein:13,carbs:0,category:'protein'}],
+proteinas_grasas:[
+{name:'Salmón',gr:50,portion:'1 ración',kcal:80,fat:4,protein:11,carbs:0,category:'protein'},
+{name:'Solomillo ahumado',gr:50,portion:'1 ración',kcal:72,fat:4,protein:9,carbs:0,category:'protein'},
+{name:'Sardinas',gr:35,portion:'8 unidades',kcal:80.5,fat:4.5,protein:10,carbs:0,category:'protein'},
+{name:'Jamón serrano',gr:45,portion:'1 ración',kcal:76,fat:4,protein:10,carbs:0,category:'protein'},
+{name:'Huevo entero',gr:85,portion:'+ 35g claras',kcal:87,fat:5,protein:10,carbs:0.5,category:'protein'},
+{name:'Atún en lata',gr:40,portion:'escurrido',kcal:60,fat:2,protein:15,carbs:0,category:'protein'}],
+huevos:[
+{name:'Huevo entero',gr:55,portion:'1 unidad',kcal:65,fat:5,protein:6,carbs:0,category:'protein'},
+{name:'Clara de huevo',gr:60,portion:'1 unidad',kcal:28,fat:0,protein:7,carbs:0,category:'protein'},
+{name:'Huevos de codorniz',gr:45,portion:'1 ración',kcal:65,fat:5,protein:6,carbs:0,category:'protein'}],
+proteina_vegetal:[
+{name:'Tofu',gr:100,portion:'1 ración',kcal:111,fat:7,protein:11,carbs:1,category:'protein'},
+{name:'Seitán',gr:45,portion:'1 ración',kcal:97,fat:1,protein:11,carbs:1,category:'protein'}],
+cereales:[
+{name:'Arroz integral',gr:10,portion:'1 ración',kcal:36.5,fat:0.5,protein:1,carbs:7,category:'carbs'},
+{name:'Pasta integral',gr:10,portion:'1 ración',kcal:36.5,fat:0.5,protein:1,carbs:7,category:'carbs'},
+{name:'Quinoa',gr:10,portion:'1 ración',kcal:36.5,fat:0.5,protein:1,carbs:7,category:'carbs'},
+{name:'Patata',gr:40,portion:'1 ración',kcal:45,fat:1,protein:1,carbs:8,category:'carbs'},
+{name:'Maíz dulce',gr:50,portion:'1 ración',kcal:38.5,fat:0.5,protein:1,carbs:7.5,category:'carbs'},
+{name:'Gnocchi',gr:20,portion:'1 ración',kcal:34,fat:0,protein:1,carbs:7.5,category:'carbs'}],
+pan_farinaceos:[
+{name:'Copos de maíz',gr:22,portion:'1 ración',kcal:76,fat:0,protein:1,carbs:18,category:'carbs'},
+{name:'Copos de avena',gr:30,portion:'1 ración',kcal:106,fat:2,protein:4,carbs:18,category:'carbs'},
+{name:'Copos de espelta',gr:26,portion:'Mercadona',kcal:88.5,fat:0.5,protein:4,carbs:17,category:'carbs'},
+{name:'Cereales Mix',gr:25,portion:'Mercadona',kcal:94,fat:2,protein:1.5,carbs:17.5,category:'carbs'},
+{name:'Pan blanco',gr:35,portion:'1 ración',kcal:93,fat:1,protein:3,carbs:18,category:'carbs'},
+{name:'Pan de molde integral',gr:1.5,portion:'rebanada',kcal:77,fat:1,protein:3,carbs:14,category:'carbs'},
+{name:'Tortitas de avena',gr:3,portion:'3 unidades',kcal:85,fat:1,protein:2,carbs:17,category:'carbs'},
+{name:'Pan biscotes',gr:2,portion:'2 unidades',kcal:85,fat:1,protein:3,carbs:16,category:'carbs'},
+{name:'Wraps integral',gr:36,portion:'1 unidad',kcal:102,fat:2,protein:3,carbs:18,category:'carbs'},
+{name:'Arroz Basmati',gr:1,portion:'200g envase',kcal:342,fat:6,protein:8,carbs:64,category:'carbs'},
+{name:'Pan de hamburguesa',gr:80,portion:'1 unidad',kcal:235,fat:5,protein:7.5,carbs:40,category:'carbs'}],
+legumbres:[
+{name:'Lentejas',gr:13,portion:'1 ración',kcal:40,fat:0,protein:3,carbs:7,category:'carbs'},
+{name:'Garbanzos',gr:12,portion:'1 ración',kcal:36,fat:0,protein:2,carbs:7,category:'carbs'},
+{name:'Judías',gr:16,portion:'1 ración',kcal:40.5,fat:0.5,protein:3,carbs:6,category:'carbs'},
+{name:'Habas',gr:35,portion:'1 ración',kcal:36,fat:0,protein:2,carbs:7,category:'carbs'},
+{name:'Guisantes',gr:45,portion:'1 ración',kcal:38,fat:0,protein:2.5,carbs:7,category:'carbs'}],
+frutas:[
+{name:'Albaricoques secos',gr:5,portion:'5 pequeños',kcal:88,fat:0,protein:2.5,carbs:19.5,category:'carbs'},
+{name:'Arándanos',gr:160,portion:'1 ración',kcal:100.5,fat:0.5,protein:1,carbs:23,category:'carbs'},
+{name:'Cerezas',gr:150,portion:'1 ración',kcal:94,fat:0,protein:1.5,carbs:22,category:'carbs'},
+{name:'Frambuesas',gr:160,portion:'1 ración',kcal:93,fat:1,protein:2,carbs:19,category:'carbs'},
+{name:'Fresas',gr:260,portion:'1 ración',kcal:88,fat:0,protein:2,carbs:20,category:'carbs'},
+{name:'Plátano',gr:300,portion:'1 unidad',kcal:92,fat:0,protein:1,carbs:22,category:'carbs'},
+{name:'Manzana',gr:1,portion:'mediana',kcal:78,fat:0,protein:0.5,carbs:19,category:'carbs'},
+{name:'Naranja',gr:1,portion:'grande',kcal:94,fat:0,protein:2,carbs:21.5,category:'carbs'}],
+dulces:[
+{name:'Avena masticada',gr:200,portion:'1 ración',kcal:88.5,fat:0.5,protein:2,carbs:22,category:'carbs'},
+{name:'Galletas sin azúcar',gr:36,portion:'1 ración',kcal:88,fat:0,protein:1,carbs:21,category:'carbs'},
+{name:'Miel',gr:25,portion:'1 ración',kcal:84,fat:0,protein:0,carbs:21,category:'carbs'}],
+grasas_mono:[
+{name:'Aceite de oliva',gr:6,portion:'1 ración',kcal:54,fat:6,protein:0,carbs:0,category:'fats'},
+{name:'Cacahuetes',gr:30,portion:'1 ración',kcal:51,fat:5,protein:0.5,carbs:1,category:'fats'},
+{name:'Aguacate',gr:30,portion:'1 ración',kcal:52.5,fat:4.5,protein:0.5,carbs:2.5,category:'fats'},
+{name:'Hummus',gr:20,portion:'1 ración',kcal:35,fat:5,protein:1,carbs:1.5,category:'fats'},
+{name:'Aceitunas',gr:40,portion:'1 ración',kcal:60,fat:6,protein:0,carbs:1.5,category:'fats'},
+{name:'Mantequilla',gr:8,portion:'1 ración',kcal:59.5,fat:6.5,protein:0,carbs:0,category:'fats'}],
+grasas_poli:[
+{name:'Nueces',gr:8,portion:'1 ración',kcal:53,fat:5,protein:1,carbs:1,category:'fats'},
+{name:'Avellanas',gr:8,portion:'1 ración',kcal:53,fat:5,protein:1,carbs:1,category:'fats'},
+{name:'Almendras',gr:10,portion:'1 ración',kcal:61,fat:5,protein:3,carbs:1,category:'fats'},
+{name:'Pistachos',gr:10,portion:'1 ración',kcal:61,fat:5,protein:2,carbs:2,category:'fats'}],
+semillas:[
+{name:'Semillas de chía',gr:14,portion:'1 ración',kcal:57,fat:5,protein:3,carbs:0,category:'fats'},
+{name:'Semillas de lino',gr:12,portion:'1 ración',kcal:65,fat:5,protein:2,carbs:3,category:'fats'}],
+lacteos_desnatados:[
+{name:'Yogur natural 0%',gr:120,portion:'1 ración',kcal:44,fat:0,protein:8,carbs:3,category:'dairy'},
+{name:'Yogur sabores',gr:120,portion:'1 ración',kcal:44,fat:0,protein:6,carbs:5,category:'dairy'},
+{name:'Leche desnatada',gr:125,portion:'1 ración',kcal:40,fat:0,protein:4,carbs:6,category:'dairy'}],
+lacteos_semidesnatados:[
+{name:'Yogur natural',gr:1,portion:'1 yogur',kcal:68,fat:4,protein:4,carbs:4,category:'dairy'},
+{name:'Kéfir',gr:100,portion:'1 ración',kcal:72,fat:4,protein:4,carbs:5,category:'dairy'},
+{name:'Leche semidesnatada',gr:150,portion:'1 ración',kcal:62,fat:2,protein:4,carbs:7,category:'dairy'},
+{name:'Queso Philadelphia light',gr:40,portion:'1 ración',kcal:61,fat:5,protein:2,carbs:2,category:'dairy'}],
+lacteos_enteros:[
+{name:'Leche entera',gr:120,portion:'1 ración',kcal:77,fat:4,protein:4,carbs:6,category:'dairy'},
+{name:'Yogur griego',gr:120,portion:'1 ración',kcal:157,fat:13,protein:5,carbs:5,category:'dairy'},
+{name:'Queso Philadelphia',gr:45,portion:'1 ración',kcal:111,fat:11,protein:2,carbs:1,category:'dairy'}],
+yogures_proteicos:[
+{name:'Gelatina proteica',gr:1,portion:'1 envase',kcal:40,fat:0,protein:6,carbs:4,category:'dairy'},
+{name:'Quiero batido 20',gr:1,portion:'1 envase',kcal:56,fat:0,protein:10,carbs:4,category:'dairy'},
+{name:'Yogur +10 proteínas',gr:1,portion:'1 envase',kcal:64,fat:0,protein:10,carbs:6,category:'dairy'},
+{name:'Yo Pro batido',gr:1,portion:'1 envase',kcal:102,fat:2,protein:15,carbs:6,category:'dairy'},
+{name:'Pudding proteico',gr:1,portion:'1 envase',kcal:151,fat:3,protein:20,carbs:11,category:'dairy'}]
+};
+
+const R={
+'pollo':[{name:'Pollo a la plancha con especias',style:'fitness',time:'fast'},{name:'Pollo al horno con hierbas provenzales',style:'mediterráneo',time:'elaborate'},{name:'Pollo salteado con jengibre y soja',style:'asiático',time:'fast'},{name:'Pollo mechado al ajillo',style:'tradicional',time:'elaborate'}],
+'pavo':[{name:'Pechuga de pavo a la plancha',style:'fitness',time:'fast'},{name:'Pavo al horno con verduras',style:'mediterráneo',time:'elaborate'},{name:'Salteado de pavo con jengibre',style:'asiático',time:'fast'},{name:'Filete de pavo en salsa de champiñones',style:'tradicional',time:'elaborate'}],
+'ternera':[{name:'Filete de ternera a la plancha',style:'tradicional',time:'fast'},{name:'Solomillo de ternera al horno',style:'mediterráneo',time:'elaborate'},{name:'Ternera salteada con verduras',style:'asiático',time:'fast'},{name:'Estofado de ternera',style:'tradicional',time:'elaborate'}],
+'cerdo':[{name:'Lomo de cerdo a la plancha',style:'fitness',time:'fast'},{name:'Solomillo de cerdo al horno con miel',style:'mediterráneo',time:'elaborate'},{name:'Cerdo agridulce',style:'asiático',time:'elaborate'},{name:'Chuletas de cerdo al romero',style:'tradicional',time:'fast'}],
+'conejo':[{name:'Conejo a la plancha con especias',style:'fitness',time:'fast'},{name:'Conejo al horno con hierbas',style:'mediterráneo',time:'elaborate'},{name:'Conejo guisado con setas',style:'tradicional',time:'elaborate'},{name:'Conejo salteado al ajo',style:'fitness',time:'fast'}],
+'pescado_blanco':[{name:'Pescado blanco a la plancha con limón',style:'mediterráneo',time:'fast'},{name:'Pescado al horno con especias',style:'mediterráneo',time:'elaborate'},{name:'Pescado al vapor con jengibre',style:'asiático',time:'elaborate'},{name:'Pescado en salsa verde',style:'tradicional',time:'elaborate'}],
+'salmon':[{name:'Salmón a la plancha',style:'fitness',time:'fast'},{name:'Salmón teriyaki',style:'asiático',time:'elaborate'},{name:'Salmón al horno con eneldo',style:'mediterráneo',time:'elaborate'},{name:'Tataki de salmón con sésamo',style:'asiático',time:'fast'}],
+'atun':[{name:'Atún a la plancha con sésamo',style:'fitness',time:'fast'},{name:'Tataki de atún',style:'asiático',time:'fast'},{name:'Atún sellado con especias',style:'asiático',time:'fast'},{name:'Ensalada fresca de atún',style:'mediterráneo',time:'fast'}],
+'sardinas':[{name:'Sardinas a la plancha',style:'mediterráneo',time:'fast'},{name:'Sardinas al horno con tomate',style:'mediterráneo',time:'elaborate'},{name:'Sardinas en escabeche casero',style:'tradicional',time:'elaborate'},{name:'Sardinas con pimientos',style:'tradicional',time:'fast'}],
+'huevo':[{name:'Huevos revueltos cremosos',style:'tradicional',time:'fast'},{name:'Tortilla francesa',style:'tradicional',time:'fast'},{name:'Huevos pochados',style:'fitness',time:'fast'},{name:'Huevos al horno con tomate',style:'mediterráneo',time:'elaborate'}],
+'jamon':[{name:'Jamón con tomate rallado',style:'mediterráneo',time:'fast'},{name:'Rollitos de jamón con queso',style:'fitness',time:'fast'},{name:'Tabla de jamón ibérico',style:'mediterráneo',time:'fast'},{name:'Jamón con melón',style:'tradicional',time:'fast'}],
+'tofu':[{name:'Tofu salteado con verduras',style:'asiático',time:'fast'},{name:'Tofu a la plancha con soja',style:'fitness',time:'fast'},{name:'Tofu marinado al horno',style:'asiático',time:'elaborate'},{name:'Revuelto de tofu',style:'fitness',time:'fast'}],
+'seitan':[{name:'Seitán a la plancha',style:'fitness',time:'fast'},{name:'Seitán estilo teriyaki',style:'asiático',time:'fast'},{name:'Seitán guisado con setas',style:'tradicional',time:'elaborate'},{name:'Seitán rebozado al horno',style:'fitness',time:'elaborate'}],
+'pollo+arroz':[{name:'Bowl de pollo con arroz integral',style:'fitness',time:'fast'},{name:'Pollo teriyaki con arroz',style:'asiático',time:'elaborate'},{name:'Arroz con pollo al curry',style:'asiático',time:'elaborate'},{name:'Arroz tres delicias con pollo',style:'asiático',time:'fast'}],
+'pavo+arroz':[{name:'Bowl de pavo con arroz y verduras',style:'fitness',time:'fast'},{name:'Arroz salteado con pavo',style:'asiático',time:'fast'},{name:'Pavo con arroz al curry suave',style:'asiático',time:'elaborate'},{name:'Bowl fitness de pavo y arroz',style:'fitness',time:'fast'}],
+'ternera+arroz':[{name:'Bowl de ternera con arroz',style:'fitness',time:'fast'},{name:'Arroz con ternera estilo chino',style:'asiático',time:'fast'},{name:'Ternera sobre arroz salteado',style:'asiático',time:'fast'},{name:'Arroz con ragú de ternera',style:'tradicional',time:'elaborate'}],
+'cerdo+arroz':[{name:'Cerdo agridulce con arroz',style:'asiático',time:'elaborate'},{name:'Arroz frito con cerdo',style:'asiático',time:'fast'},{name:'Bowl de cerdo y arroz integral',style:'fitness',time:'fast'},{name:'Arroz salteado con lomo de cerdo',style:'asiático',time:'fast'}],
+'conejo+arroz':[{name:'Arroz con conejo',style:'tradicional',time:'elaborate'},{name:'Paella de conejo',style:'mediterráneo',time:'elaborate'},{name:'Bowl de conejo con arroz',style:'fitness',time:'fast'},{name:'Arroz al horno con conejo',style:'tradicional',time:'elaborate'}],
+'pescado+arroz':[{name:'Bowl de pescado con arroz',style:'fitness',time:'fast'},{name:'Arroz con pescado al horno',style:'mediterráneo',time:'elaborate'},{name:'Paella de pescado blanco',style:'mediterráneo',time:'elaborate'},{name:'Arroz caldoso de pescado',style:'mediterráneo',time:'elaborate'}],
+'salmon+arroz':[{name:'Poke bowl de salmón',style:'asiático',time:'fast'},{name:'Salmón teriyaki con arroz',style:'asiático',time:'elaborate'},{name:'Bowl mediterráneo de salmón',style:'mediterráneo',time:'fast'},{name:'Sushi bowl casero',style:'asiático',time:'fast'}],
+'atun+arroz':[{name:'Bowl de atún con arroz',style:'fitness',time:'fast'},{name:'Arroz con atún y verduras',style:'mediterráneo',time:'fast'},{name:'Poke bowl de atún',style:'asiático',time:'fast'},{name:'Ensalada de arroz con atún',style:'mediterráneo',time:'fast'}],
+'sardinas+arroz':[{name:'Arroz con sardinas y pimientos',style:'mediterráneo',time:'elaborate'},{name:'Bowl de sardinas y arroz',style:'fitness',time:'fast'},{name:'Arroz caldoso con sardinas',style:'tradicional',time:'elaborate'},{name:'Sardinas sobre arroz con limón',style:'mediterráneo',time:'fast'}],
+'huevo+arroz':[{name:'Arroz frito con huevo',style:'asiático',time:'fast'},{name:'Bowl de arroz con huevo pochado',style:'asiático',time:'fast'},{name:'Arroz tres delicias con huevo',style:'asiático',time:'fast'},{name:'Bibimbap casero',style:'asiático',time:'elaborate'}],
+'tofu+arroz':[{name:'Bowl de tofu y arroz teriyaki',style:'asiático',time:'fast'},{name:'Arroz frito con tofu',style:'asiático',time:'fast'},{name:'Curry de tofu con arroz',style:'asiático',time:'elaborate'},{name:'Bowl buddha de tofu',style:'fitness',time:'fast'}],
+'pollo+pasta':[{name:'Pasta con pollo y champiñones',style:'mediterráneo',time:'fast'},{name:'Pasta integral con pollo al pesto',style:'fitness',time:'fast'},{name:'Espaguetis con pollo y verduras',style:'mediterráneo',time:'fast'},{name:'Pasta alfredo light con pollo',style:'fitness',time:'elaborate'}],
+'pavo+pasta':[{name:'Pasta con pavo y tomate natural',style:'mediterráneo',time:'fast'},{name:'Pasta integral con pavo especiado',style:'fitness',time:'fast'},{name:'Espaguetis con salsa de pavo',style:'mediterráneo',time:'elaborate'},{name:'Macarrones con pavo',style:'tradicional',time:'fast'}],
+'ternera+pasta':[{name:'Espaguetis boloñesa de ternera',style:'tradicional',time:'elaborate'},{name:'Pasta con ragú de ternera',style:'mediterráneo',time:'elaborate'},{name:'Lasaña de ternera',style:'tradicional',time:'elaborate'},{name:'Macarrones con carne',style:'tradicional',time:'fast'}],
+'cerdo+pasta':[{name:'Pasta carbonara fitness con cerdo',style:'fitness',time:'fast'},{name:'Espaguetis con lomo de cerdo',style:'mediterráneo',time:'fast'},{name:'Pasta con ragú de cerdo',style:'mediterráneo',time:'elaborate'},{name:'Macarrones con solomillo',style:'tradicional',time:'fast'}],
+'atun+pasta':[{name:'Pasta con atún y tomate',style:'mediterráneo',time:'fast'},{name:'Ensalada de pasta con atún',style:'fitness',time:'fast'},{name:'Espaguetis con atún y alcaparras',style:'mediterráneo',time:'fast'},{name:'Pasta integral con atún',style:'fitness',time:'fast'}],
+'pescado+pasta':[{name:'Pasta con pescado blanco y tomate',style:'mediterráneo',time:'fast'},{name:'Linguini con pescado al limón',style:'mediterráneo',time:'elaborate'},{name:'Pasta marinera',style:'mediterráneo',time:'elaborate'},{name:'Espaguetis con salsa de pescado',style:'mediterráneo',time:'fast'}],
+'salmon+pasta':[{name:'Pasta con salmón y nata light',style:'mediterráneo',time:'fast'},{name:'Espaguetis con salmón ahumado',style:'mediterráneo',time:'fast'},{name:'Tagliatelle con salmón fresco',style:'mediterráneo',time:'elaborate'},{name:'Pasta al salmón con eneldo',style:'fitness',time:'fast'}],
+'huevo+pasta':[{name:'Pasta carbonara con huevo',style:'tradicional',time:'fast'},{name:'Espaguetis con huevo pochado',style:'fitness',time:'fast'},{name:'Fideos con huevo estilo asiático',style:'asiático',time:'fast'},{name:'Pasta con tortilla desmigada',style:'fitness',time:'fast'}],
+'pollo+patata':[{name:'Pollo asado con patatas',style:'tradicional',time:'elaborate'},{name:'Pollo al horno con patatas al romero',style:'mediterráneo',time:'elaborate'},{name:'Bowl de pollo con patata',style:'fitness',time:'elaborate'},{name:'Pollo y patatas panaderas',style:'tradicional',time:'elaborate'}],
+'pavo+patata':[{name:'Pavo al horno con patatas',style:'mediterráneo',time:'elaborate'},{name:'Bowl de pavo con puré de patata',style:'fitness',time:'elaborate'},{name:'Pavo asado con patatas al limón',style:'tradicional',time:'elaborate'},{name:'Pechuga de pavo con patata asada',style:'fitness',time:'elaborate'}],
+'ternera+patata':[{name:'Ternera guisada con patatas',style:'tradicional',time:'elaborate'},{name:'Ternera al horno con patatas',style:'mediterráneo',time:'elaborate'},{name:'Filete con patatas asadas',style:'tradicional',time:'elaborate'},{name:'Bowl de ternera con puré',style:'fitness',time:'elaborate'}],
+'cerdo+patata':[{name:'Lomo de cerdo con patatas al horno',style:'tradicional',time:'elaborate'},{name:'Cerdo asado con patatas panaderas',style:'mediterráneo',time:'elaborate'},{name:'Solomillo de cerdo con puré',style:'tradicional',time:'elaborate'},{name:'Cerdo con patatas y romero',style:'mediterráneo',time:'elaborate'}],
+'conejo+patata':[{name:'Conejo guisado con patatas',style:'tradicional',time:'elaborate'},{name:'Conejo al horno con patatas',style:'mediterráneo',time:'elaborate'},{name:'Conejo con patatas panaderas',style:'tradicional',time:'elaborate'},{name:'Guiso de conejo y patata',style:'tradicional',time:'elaborate'}],
+'pescado+patata':[{name:'Pescado al horno con patatas',style:'mediterráneo',time:'elaborate'},{name:'Pescado con puré de patata',style:'tradicional',time:'elaborate'},{name:'Bowl de pescado con patata',style:'fitness',time:'elaborate'},{name:'Pescado y patatas al papillote',style:'mediterráneo',time:'elaborate'}],
+'salmon+patata':[{name:'Salmón con patatas al horno',style:'mediterráneo',time:'elaborate'},{name:'Bowl de salmón con puré',style:'fitness',time:'elaborate'},{name:'Salmón al horno con patatas',style:'tradicional',time:'elaborate'},{name:'Salmón con patata asada y eneldo',style:'mediterráneo',time:'elaborate'}],
+'huevo+patata':[{name:'Tortilla de patata',style:'tradicional',time:'fast'},{name:'Huevos rotos con patatas',style:'tradicional',time:'fast'},{name:'Patatas con huevo al horno',style:'fitness',time:'elaborate'},{name:'Bowl de patata y huevo pochado',style:'fitness',time:'fast'}],
+'pollo+legumbres':[{name:'Ensalada de garbanzos con pollo',style:'mediterráneo',time:'fast'},{name:'Curry de garbanzos y pollo',style:'asiático',time:'elaborate'},{name:'Bowl de lentejas con pollo',style:'fitness',time:'fast'},{name:'Potaje de garbanzos con pollo',style:'tradicional',time:'elaborate'}],
+'pavo+legumbres':[{name:'Ensalada de lentejas con pavo',style:'fitness',time:'fast'},{name:'Garbanzos salteados con pavo',style:'mediterráneo',time:'fast'},{name:'Bowl de legumbres con pavo',style:'fitness',time:'fast'},{name:'Guiso de judías con pavo',style:'tradicional',time:'elaborate'}],
+'ternera+legumbres':[{name:'Cocido madrileño',style:'tradicional',time:'elaborate'},{name:'Lentejas con ternera',style:'tradicional',time:'elaborate'},{name:'Garbanzos con ternera',style:'tradicional',time:'elaborate'},{name:'Bowl de legumbres con ternera',style:'fitness',time:'fast'}],
+'cerdo+legumbres':[{name:'Lentejas con lomo de cerdo',style:'tradicional',time:'elaborate'},{name:'Fabada con cerdo',style:'tradicional',time:'elaborate'},{name:'Garbanzos con cerdo',style:'tradicional',time:'elaborate'},{name:'Bowl de judías con solomillo',style:'fitness',time:'fast'}],
+'huevo+legumbres':[{name:'Bowl de garbanzos con huevo pochado',style:'fitness',time:'fast'},{name:'Ensalada de lentejas con huevo',style:'mediterráneo',time:'fast'},{name:'Garbanzos especiados con huevo',style:'asiático',time:'fast'},{name:'Potaje con huevo duro',style:'tradicional',time:'elaborate'}],
+'atun+legumbres':[{name:'Ensalada de garbanzos con atún',style:'mediterráneo',time:'fast'},{name:'Lentejas con atún',style:'fitness',time:'fast'},{name:'Bowl de judías con atún',style:'fitness',time:'fast'},{name:'Ensalada campera con atún',style:'mediterráneo',time:'fast'}],
+'pescado+legumbres':[{name:'Guiso de garbanzos con pescado',style:'tradicional',time:'elaborate'},{name:'Potaje de lentejas con bacalao',style:'tradicional',time:'elaborate'},{name:'Bowl de legumbres con pescado',style:'fitness',time:'fast'},{name:'Garbanzos con bacalao',style:'mediterráneo',time:'elaborate'}],
+'pollo+quinoa':[{name:'Bowl de pollo con quinoa',style:'fitness',time:'fast'},{name:'Quinoa salteada con pollo',style:'fitness',time:'fast'},{name:'Ensalada de quinoa con pollo',style:'mediterráneo',time:'fast'},{name:'Pollo sobre cama de quinoa',style:'fitness',time:'fast'}],
+'salmon+quinoa':[{name:'Bowl de salmón con quinoa',style:'fitness',time:'fast'},{name:'Ensalada de quinoa con salmón',style:'mediterráneo',time:'fast'},{name:'Quinoa con salmón teriyaki',style:'asiático',time:'elaborate'},{name:'Bowl omega-3 con quinoa',style:'fitness',time:'fast'}],
+'huevo+quinoa':[{name:'Bowl de quinoa con huevo pochado',style:'fitness',time:'fast'},{name:'Quinoa salteada con huevo',style:'fitness',time:'fast'},{name:'Ensalada de quinoa con huevo',style:'mediterráneo',time:'fast'},{name:'Quinoa bowl con huevo revuelto',style:'fitness',time:'fast'}],
+'huevo+pan':[{name:'Tostadas con huevo pochado',style:'fitness',time:'fast'},{name:'Huevos revueltos con tostadas',style:'tradicional',time:'fast'},{name:'Sándwich de huevo',style:'fitness',time:'fast'},{name:'Tostadas francesas proteicas',style:'fitness',time:'elaborate'}],
+'huevo+avena':[{name:'Tortitas de avena y huevo',style:'fitness',time:'fast'},{name:'Gachas de avena con huevo',style:'fitness',time:'fast'},{name:'Pancakes proteicos de avena',style:'fitness',time:'elaborate'},{name:'Bowl de avena salado con huevo',style:'fitness',time:'fast'}],
+'huevo+aguacate':[{name:'Tosta de aguacate con huevo pochado',style:'fitness',time:'fast'},{name:'Bowl de aguacate y huevo revuelto',style:'fitness',time:'fast'},{name:'Aguacate relleno de huevo al horno',style:'fitness',time:'elaborate'},{name:'Revuelto de huevo con aguacate',style:'fitness',time:'fast'}],
+'pollo+aguacate':[{name:'Ensalada de pollo con aguacate',style:'fitness',time:'fast'},{name:'Bowl de pollo y aguacate',style:'fitness',time:'fast'},{name:'Wrap de pollo con aguacate',style:'fitness',time:'fast'},{name:'Pollo con guacamole casero',style:'fitness',time:'fast'}],
+'pavo+aguacate':[{name:'Ensalada de pavo con aguacate',style:'fitness',time:'fast'},{name:'Bowl fitness de pavo y aguacate',style:'fitness',time:'fast'},{name:'Wrap de pavo con aguacate',style:'fitness',time:'fast'},{name:'Pavo con guacamole',style:'fitness',time:'fast'}],
+'salmon+aguacate':[{name:'Tartar de salmón con aguacate',style:'asiático',time:'fast'},{name:'Bowl de salmón y aguacate',style:'fitness',time:'fast'},{name:'Tosta de salmón ahumado y aguacate',style:'fitness',time:'fast'},{name:'Salmón con guacamole',style:'fitness',time:'fast'}],
+'atun+aguacate':[{name:'Tartar de atún con aguacate',style:'asiático',time:'fast'},{name:'Bowl de atún y aguacate',style:'fitness',time:'fast'},{name:'Ensalada de atún con aguacate',style:'fitness',time:'fast'},{name:'Tosta de atún y aguacate',style:'fitness',time:'fast'}],
+'yogur+platano':[{name:'Yogur con plátano y canela',style:'fitness',time:'fast'},{name:'Smoothie de yogur y plátano',style:'fitness',time:'fast'},{name:'Bowl de yogur con plátano',style:'fitness',time:'fast'},{name:'Parfait de yogur y plátano',style:'fitness',time:'fast'}],
+'yogur+fresas':[{name:'Yogur con fresas frescas',style:'fitness',time:'fast'},{name:'Smoothie de yogur y fresas',style:'fitness',time:'fast'},{name:'Bowl de yogur con fresas',style:'fitness',time:'fast'},{name:'Parfait de yogur y fresas',style:'fitness',time:'fast'}],
+'yogur+arandanos':[{name:'Yogur con arándanos frescos',style:'fitness',time:'fast'},{name:'Smoothie bowl de arándanos',style:'fitness',time:'fast'},{name:'Yogur griego con arándanos',style:'fitness',time:'fast'},{name:'Parfait de yogur y arándanos',style:'fitness',time:'fast'}],
+'yogur+frutas':[{name:'Bowl de yogur con frutas del bosque',style:'fitness',time:'fast'},{name:'Yogur con frutas de temporada',style:'fitness',time:'fast'},{name:'Parfait de yogur y frutas',style:'fitness',time:'fast'},{name:'Smoothie bowl de frutas',style:'fitness',time:'fast'}],
+'avena+yogur':[{name:'Overnight oats con yogur',style:'fitness',time:'fast'},{name:'Gachas de avena con yogur',style:'fitness',time:'fast'},{name:'Bowl de avena y yogur griego',style:'fitness',time:'fast'},{name:'Porridge proteico con yogur',style:'fitness',time:'elaborate'}],
+'avena+platano':[{name:'Porridge de avena con plátano',style:'fitness',time:'fast'},{name:'Overnight oats con plátano',style:'fitness',time:'fast'},{name:'Tortitas de avena y plátano',style:'fitness',time:'fast'},{name:'Smoothie de avena y plátano',style:'fitness',time:'fast'}],
+'avena+fresas':[{name:'Porridge de avena con fresas',style:'fitness',time:'fast'},{name:'Overnight oats con fresas',style:'fitness',time:'fast'},{name:'Bowl de avena con fresas',style:'fitness',time:'fast'},{name:'Smoothie de avena y fresas',style:'fitness',time:'fast'}],
+'avena+frutas':[{name:'Porridge de avena con frutas',style:'fitness',time:'fast'},{name:'Overnight oats con frutas',style:'fitness',time:'fast'},{name:'Bowl energético de avena',style:'fitness',time:'fast'},{name:'Gachas de avena con fruta',style:'fitness',time:'fast'}],
+'avena+miel':[{name:'Porridge de avena con miel',style:'fitness',time:'fast'},{name:'Gachas dulces de avena',style:'tradicional',time:'fast'},{name:'Bowl de avena endulzado',style:'fitness',time:'fast'},{name:'Overnight oats con miel',style:'fitness',time:'fast'}],
+'pan+aguacate':[{name:'Tostada de aguacate con tomate',style:'fitness',time:'fast'},{name:'Toast de aguacate y limón',style:'fitness',time:'fast'},{name:'Pan con guacamole casero',style:'fitness',time:'fast'},{name:'Tosta de aguacate con especias',style:'mediterráneo',time:'fast'}],
+'pan+jamon':[{name:'Bocadillo de jamón serrano',style:'tradicional',time:'fast'},{name:'Tosta de jamón con tomate',style:'mediterráneo',time:'fast'},{name:'Sándwich de jamón cocido',style:'fitness',time:'fast'},{name:'Pan con jamón y aceite',style:'mediterráneo',time:'fast'}],
+'pan+queso':[{name:'Tosta de queso fresco y tomate',style:'fitness',time:'fast'},{name:'Sándwich de queso',style:'tradicional',time:'fast'},{name:'Pan con queso philadelphia',style:'fitness',time:'fast'},{name:'Tostada con queso y hierbas',style:'mediterráneo',time:'fast'}],
+'pan+atun':[{name:'Bocadillo de atún con tomate',style:'mediterráneo',time:'fast'},{name:'Tosta de atún y cebolla',style:'mediterráneo',time:'fast'},{name:'Sándwich de atún y lechuga',style:'fitness',time:'fast'},{name:'Pan con paté de atún',style:'mediterráneo',time:'fast'}],
+'pan+mantequilla':[{name:'Tostadas con mantequilla',style:'tradicional',time:'fast'},{name:'Pan con mantequilla y mermelada',style:'tradicional',time:'fast'},{name:'Tosta energética',style:'fitness',time:'fast'},{name:'Pan tostado con mantequilla y miel',style:'tradicional',time:'fast'}],
+'pan+salmon':[{name:'Tosta de salmón ahumado',style:'mediterráneo',time:'fast'},{name:'Sándwich de salmón con aguacate',style:'fitness',time:'fast'},{name:'Bagel de salmón estilo NY',style:'fitness',time:'fast'},{name:'Pan con salmón y queso crema',style:'fitness',time:'fast'}],
+'huevo+pan+aguacate':[{name:'Tosta completa fitness',style:'fitness',time:'fast'},{name:'Sándwich de huevo y aguacate',style:'fitness',time:'fast'},{name:'Toast de aguacate con huevo pochado',style:'fitness',time:'fast'},{name:'Desayuno completo saludable',style:'fitness',time:'fast'}],
+'yogur+avena+frutas':[{name:'Desayuno energético completo',style:'fitness',time:'fast'},{name:'Overnight oats completo',style:'fitness',time:'fast'},{name:'Bowl de desayuno perfecto',style:'fitness',time:'fast'},{name:'Parfait completo de avena',style:'fitness',time:'fast'}],
+'salmon+arroz+aguacate':[{name:'Poke bowl premium de salmón',style:'asiático',time:'fast'},{name:'Bowl omega-3 completo',style:'fitness',time:'fast'},{name:'Sushi bowl gourmet',style:'asiático',time:'fast'},{name:'Bowl mediterráneo completo',style:'mediterráneo',time:'fast'}],
+'fruta+frutos_secos':[{name:'Snack energético natural',style:'fitness',time:'fast'},{name:'Mix de fruta y nueces',style:'fitness',time:'fast'},{name:'Trail mix casero',style:'fitness',time:'fast'},{name:'Snack saludable rápido',style:'fitness',time:'fast'}],
+'sardinas+pasta':[{name:'Espaguetis con sardinas y ajo',style:'mediterráneo',time:'fast'},{name:'Pasta siciliana con sardinas y piñones',style:'mediterráneo',time:'elaborate'},{name:'Penne con sardinas y tomate cherry',style:'mediterráneo',time:'fast'},{name:'Linguini con sardinas al limón',style:'mediterráneo',time:'fast'}],
+'conejo+pasta':[{name:'Pappardelle con ragú de conejo',style:'tradicional',time:'elaborate'},{name:'Pasta con conejo desmigado',style:'tradicional',time:'elaborate'},{name:'Tagliatelle con conejo y setas',style:'mediterráneo',time:'elaborate'}],
+'tofu+pasta':[{name:'Pasta con tofu salteado y verduras',style:'asiático',time:'fast'},{name:'Espaguetis con boloñesa de tofu',style:'fitness',time:'elaborate'},{name:'Penne con tofu y pesto',style:'mediterráneo',time:'fast'},{name:'Pasta al curry con tofu',style:'asiático',time:'elaborate'}],
+'seitan+pasta':[{name:'Espaguetis con seitán a la boloñesa',style:'tradicional',time:'elaborate'},{name:'Pasta con seitán y champiñones',style:'mediterráneo',time:'fast'},{name:'Macarrones con seitán especiado',style:'fitness',time:'fast'}],
+'seitan+arroz':[{name:'Arroz salteado con seitán teriyaki',style:'asiático',time:'fast'},{name:'Bowl de seitán con arroz y verduras',style:'fitness',time:'fast'},{name:'Arroz con seitán al curry',style:'asiático',time:'elaborate'},{name:'Seitán frito con arroz jazmín',style:'asiático',time:'fast'}],
+'pavo+quinoa':[{name:'Bowl de pavo con quinoa y verduras',style:'fitness',time:'fast'},{name:'Ensalada templada de quinoa y pavo',style:'mediterráneo',time:'fast'},{name:'Quinoa salteada con pavo al limón',style:'fitness',time:'fast'},{name:'Pavo con quinoa y especias árabes',style:'mediterráneo',time:'elaborate'}],
+'ternera+quinoa':[{name:'Bowl de ternera con quinoa',style:'fitness',time:'fast'},{name:'Quinoa con ragú de ternera',style:'tradicional',time:'elaborate'},{name:'Ensalada de quinoa con ternera a la plancha',style:'mediterráneo',time:'fast'},{name:'Ternera con quinoa y chimichurri',style:'tradicional',time:'fast'}],
+'cerdo+quinoa':[{name:'Bowl de cerdo con quinoa y aguacate',style:'fitness',time:'fast'},{name:'Quinoa salteada con lomo de cerdo',style:'fitness',time:'fast'},{name:'Solomillo de cerdo sobre quinoa',style:'mediterráneo',time:'elaborate'},{name:'Cerdo al horno con quinoa especiada',style:'mediterráneo',time:'elaborate'}],
+'pescado+quinoa':[{name:'Bowl de merluza con quinoa',style:'fitness',time:'fast'},{name:'Quinoa con bacalao al pil-pil',style:'tradicional',time:'elaborate'},{name:'Ensalada de quinoa con lubina',style:'mediterráneo',time:'fast'},{name:'Rape con quinoa y verduras',style:'mediterráneo',time:'elaborate'}],
+'atun+quinoa':[{name:'Ensalada de quinoa con atún',style:'fitness',time:'fast'},{name:'Bowl de atún con quinoa y sésamo',style:'asiático',time:'fast'},{name:'Quinoa con atún y tomate cherry',style:'mediterráneo',time:'fast'},{name:'Poke bowl de atún con quinoa',style:'asiático',time:'fast'}],
+'sardinas+quinoa':[{name:'Ensalada de quinoa con sardinas',style:'mediterráneo',time:'fast'},{name:'Bowl de sardinas con quinoa y limón',style:'fitness',time:'fast'},{name:'Quinoa templada con sardinas',style:'mediterráneo',time:'fast'}],
+'conejo+quinoa':[{name:'Conejo con quinoa al horno',style:'mediterráneo',time:'elaborate'},{name:'Bowl de conejo con quinoa y hierbas',style:'fitness',time:'fast'},{name:'Ensalada de quinoa con conejo desmigado',style:'mediterráneo',time:'fast'}],
+'tofu+quinoa':[{name:'Buddha bowl de tofu y quinoa',style:'fitness',time:'fast'},{name:'Quinoa con tofu teriyaki',style:'asiático',time:'fast'},{name:'Ensalada de quinoa con tofu marinado',style:'asiático',time:'fast'},{name:'Bowl vegano de quinoa y tofu',style:'fitness',time:'fast'}],
+'seitan+quinoa':[{name:'Bowl de seitán con quinoa',style:'fitness',time:'fast'},{name:'Quinoa salteada con seitán y verduras',style:'fitness',time:'fast'},{name:'Seitán al curry con quinoa',style:'asiático',time:'elaborate'}],
+'jamon+quinoa':[{name:'Ensalada de quinoa con jamón',style:'mediterráneo',time:'fast'},{name:'Quinoa con jamón y huevo',style:'fitness',time:'fast'},{name:'Bowl de quinoa con virutas de jamón',style:'mediterráneo',time:'fast'}],
+'atun+patata':[{name:'Ensalada campera con atún',style:'tradicional',time:'fast'},{name:'Patatas rellenas de atún',style:'tradicional',time:'elaborate'},{name:'Puré de patata con atún gratinado',style:'tradicional',time:'elaborate'},{name:'Bowl de patata y atún con cebolleta',style:'fitness',time:'fast'}],
+'sardinas+patata':[{name:'Sardinas con patatas al horno',style:'mediterráneo',time:'elaborate'},{name:'Patatas con sardinas y pimientos',style:'tradicional',time:'elaborate'},{name:'Ensalada de patata con sardinas',style:'mediterráneo',time:'fast'}],
+'tofu+patata':[{name:'Patatas al horno con tofu especiado',style:'fitness',time:'elaborate'},{name:'Guiso de patata con tofu',style:'asiático',time:'elaborate'},{name:'Hash de patata y tofu',style:'fitness',time:'fast'},{name:'Tofu salteado con patatas al romero',style:'mediterráneo',time:'elaborate'}],
+'seitan+patata':[{name:'Seitán con patatas al horno',style:'tradicional',time:'elaborate'},{name:'Estofado de patata con seitán',style:'tradicional',time:'elaborate'},{name:'Patatas bravas con seitán',style:'tradicional',time:'fast'}],
+'conejo+legumbres':[{name:'Potaje de garbanzos con conejo',style:'tradicional',time:'elaborate'},{name:'Guiso de lentejas con conejo',style:'tradicional',time:'elaborate'},{name:'Conejo con judías blancas',style:'tradicional',time:'elaborate'}],
+'sardinas+legumbres':[{name:'Ensalada de garbanzos con sardinas',style:'mediterráneo',time:'fast'},{name:'Lentejas con sardinas',style:'tradicional',time:'elaborate'},{name:'Bowl de judías con sardinas y limón',style:'fitness',time:'fast'}],
+'salmon+legumbres':[{name:'Ensalada de lentejas con salmón',style:'fitness',time:'fast'},{name:'Garbanzos con salmón al horno',style:'mediterráneo',time:'elaborate'},{name:'Bowl de judías con salmón',style:'fitness',time:'fast'},{name:'Lentejas templadas con salmón a la plancha',style:'mediterráneo',time:'fast'}],
+'tofu+legumbres':[{name:'Curry de garbanzos con tofu',style:'asiático',time:'elaborate'},{name:'Ensalada de lentejas con tofu',style:'fitness',time:'fast'},{name:'Guiso de judías con tofu',style:'asiático',time:'elaborate'},{name:'Bowl de legumbres con tofu marinado',style:'fitness',time:'fast'}],
+'seitan+legumbres':[{name:'Estofado de lentejas con seitán',style:'tradicional',time:'elaborate'},{name:'Garbanzos con seitán especiado',style:'mediterráneo',time:'elaborate'},{name:'Fabada vegana con seitán',style:'tradicional',time:'elaborate'}],
+'jamon+legumbres':[{name:'Lentejas con jamón',style:'tradicional',time:'elaborate'},{name:'Garbanzos con jamón serrano',style:'tradicional',time:'elaborate'},{name:'Habas con jamón',style:'tradicional',time:'fast'},{name:'Guisantes salteados con jamón',style:'tradicional',time:'fast'}],
+'ternera+aguacate':[{name:'Ensalada de ternera con aguacate',style:'fitness',time:'fast'},{name:'Bowl de ternera y guacamole',style:'fitness',time:'fast'},{name:'Tacos de ternera con aguacate',style:'tradicional',time:'fast'},{name:'Ternera a la plancha con salsa de aguacate',style:'fitness',time:'fast'}],
+'cerdo+aguacate':[{name:'Bowl de cerdo con aguacate y lima',style:'fitness',time:'fast'},{name:'Tacos de cerdo con guacamole',style:'tradicional',time:'fast'},{name:'Lomo de cerdo con salsa de aguacate',style:'fitness',time:'fast'}],
+'pescado+aguacate':[{name:'Ceviche de pescado con aguacate',style:'mediterráneo',time:'fast'},{name:'Bowl de merluza con aguacate',style:'fitness',time:'fast'},{name:'Tosta de bacalao con aguacate',style:'fitness',time:'fast'},{name:'Lubina con guacamole',style:'fitness',time:'fast'}],
+'sardinas+aguacate':[{name:'Tosta de sardinas con aguacate',style:'mediterráneo',time:'fast'},{name:'Ensalada de sardinas con aguacate',style:'fitness',time:'fast'},{name:'Bowl de sardinas y aguacate',style:'fitness',time:'fast'}],
+'jamon+aguacate':[{name:'Tosta de jamón con aguacate',style:'fitness',time:'fast'},{name:'Ensalada de jamón y aguacate',style:'mediterráneo',time:'fast'},{name:'Rollitos de jamón con aguacate',style:'fitness',time:'fast'}],
+'tofu+aguacate':[{name:'Bowl de tofu con aguacate y sésamo',style:'asiático',time:'fast'},{name:'Ensalada de tofu y aguacate',style:'fitness',time:'fast'},{name:'Wrap de tofu con guacamole',style:'fitness',time:'fast'}],
+'conejo+aguacate':[{name:'Ensalada de conejo con aguacate',style:'fitness',time:'fast'},{name:'Bowl de conejo desmigado con aguacate',style:'fitness',time:'fast'}],
+'pollo+pan':[{name:'Sándwich de pollo a la plancha',style:'fitness',time:'fast'},{name:'Wrap de pollo con lechuga',style:'fitness',time:'fast'},{name:'Bocadillo de pollo con tomate',style:'tradicional',time:'fast'},{name:'Tosta de pollo desmigado',style:'mediterráneo',time:'fast'}],
+'pavo+pan':[{name:'Sándwich de pavo con lechuga y tomate',style:'fitness',time:'fast'},{name:'Wrap de pavo y canónigos',style:'fitness',time:'fast'},{name:'Bocadillo de pavo con mostaza',style:'fitness',time:'fast'},{name:'Tosta de pavo con queso fresco',style:'fitness',time:'fast'}],
+'ternera+pan':[{name:'Bocadillo de filete de ternera',style:'tradicional',time:'fast'},{name:'Sándwich de ternera con rúcula',style:'mediterráneo',time:'fast'},{name:'Hamburguesa de ternera casera',style:'tradicional',time:'elaborate'}],
+'cerdo+pan':[{name:'Bocadillo de lomo de cerdo',style:'tradicional',time:'fast'},{name:'Sándwich de solomillo de cerdo',style:'tradicional',time:'fast'},{name:'Wrap de cerdo con salsa BBQ',style:'fitness',time:'fast'}],
+'pescado+pan':[{name:'Bocadillo de merluza rebozada',style:'tradicional',time:'elaborate'},{name:'Tosta de bacalao con tomate',style:'mediterráneo',time:'fast'},{name:'Wrap de pescado con salsa tártara',style:'fitness',time:'fast'}],
+'sardinas+pan':[{name:'Tosta de sardinas con tomate',style:'mediterráneo',time:'fast'},{name:'Bocadillo de sardinas con pimientos',style:'tradicional',time:'fast'},{name:'Pan con sardinas y aceite de oliva',style:'mediterráneo',time:'fast'}],
+'tofu+pan':[{name:'Sándwich de tofu a la plancha',style:'fitness',time:'fast'},{name:'Wrap de tofu con verduras',style:'asiático',time:'fast'},{name:'Tosta de tofu marinado',style:'fitness',time:'fast'}],
+'seitan+pan':[{name:'Bocadillo de seitán a la plancha',style:'fitness',time:'fast'},{name:'Wrap de seitán con mostaza',style:'fitness',time:'fast'},{name:'Sándwich de seitán con lechuga',style:'fitness',time:'fast'}],
+'pollo+avena':[{name:'Gachas saladas con pollo desmigado',style:'fitness',time:'fast'},{name:'Porridge salado con pollo y especias',style:'fitness',time:'elaborate'},{name:'Tortitas de avena con pollo',style:'fitness',time:'fast'}],
+'yogur+miel':[{name:'Yogur con miel y nueces',style:'fitness',time:'fast'},{name:'Bowl de yogur griego con miel',style:'fitness',time:'fast'},{name:'Yogur natural endulzado con miel',style:'fitness',time:'fast'}],
+'yogur+avena':[{name:'Overnight oats con yogur',style:'fitness',time:'fast'},{name:'Porridge con yogur',style:'fitness',time:'fast'},{name:'Bowl de avena y yogur griego',style:'fitness',time:'fast'},{name:'Parfait de yogur y avena',style:'fitness',time:'fast'}],
+'yogur+frutos_secos':[{name:'Yogur con nueces y almendras',style:'fitness',time:'fast'},{name:'Bowl de yogur con frutos secos',style:'fitness',time:'fast'},{name:'Parfait de yogur con mix de frutos secos',style:'fitness',time:'fast'}],
+'yogur+miel+frutas':[{name:'Bowl de yogur con miel y frutas',style:'fitness',time:'fast'},{name:'Parfait completo con miel y fruta',style:'fitness',time:'fast'},{name:'Yogur griego con miel y arándanos',style:'fitness',time:'fast'},{name:'Desayuno mediterráneo completo',style:'mediterráneo',time:'fast'}],
+'yogur+avena+miel':[{name:'Overnight oats con miel',style:'fitness',time:'fast'},{name:'Porridge con yogur y miel',style:'fitness',time:'fast'},{name:'Bowl energético de avena y yogur',style:'fitness',time:'fast'}],
+'avena+frutos_secos':[{name:'Porridge con nueces y almendras',style:'fitness',time:'fast'},{name:'Overnight oats con frutos secos',style:'fitness',time:'fast'},{name:'Bowl de avena con mix de frutos secos',style:'fitness',time:'fast'}],
+'avena+platano+miel':[{name:'Porridge de avena con plátano y miel',style:'fitness',time:'fast'},{name:'Tortitas de avena, plátano y miel',style:'fitness',time:'fast'},{name:'Overnight oats con plátano y miel',style:'fitness',time:'fast'},{name:'Bowl energético pre-entreno',style:'fitness',time:'fast'}],
+'pan+huevo+jamon':[{name:'Sándwich de huevo con jamón',style:'tradicional',time:'fast'},{name:'Tosta de jamón con huevo frito',style:'tradicional',time:'fast'},{name:'Bocadillo de tortilla con jamón',style:'tradicional',time:'fast'},{name:'Wrap de huevo revuelto con jamón',style:'fitness',time:'fast'}],
+'pan+huevo+queso':[{name:'Sándwich de huevo con queso',style:'tradicional',time:'fast'},{name:'Tosta de huevo pochado con queso',style:'fitness',time:'fast'},{name:'Croque madame casero',style:'tradicional',time:'elaborate'},{name:'Wrap de huevo con queso fundido',style:'fitness',time:'fast'}],
+'pan+jamon+queso':[{name:'Sándwich mixto de jamón y queso',style:'tradicional',time:'fast'},{name:'Bikini de jamón y queso',style:'tradicional',time:'fast'},{name:'Tosta de jamón con queso fundido',style:'tradicional',time:'fast'},{name:'Wrap de jamón y queso',style:'fitness',time:'fast'}],
+'pan+aguacate+huevo':[{name:'Tosta completa fitness',style:'fitness',time:'fast'},{name:'Sándwich de huevo y aguacate',style:'fitness',time:'fast'},{name:'Toast de aguacate con huevo pochado',style:'fitness',time:'fast'},{name:'Desayuno completo saludable',style:'fitness',time:'fast'}],
+'pan+salmon+queso':[{name:'Tosta de salmón con Philadelphia',style:'fitness',time:'fast'},{name:'Bagel de salmón y queso crema',style:'fitness',time:'fast'},{name:'Sándwich de salmón ahumado con queso',style:'fitness',time:'fast'}],
+'pan+salmon+aguacate':[{name:'Tosta de salmón y aguacate premium',style:'fitness',time:'fast'},{name:'Sándwich nórdico de salmón y aguacate',style:'mediterráneo',time:'fast'},{name:'Bagel de salmón, aguacate y lima',style:'fitness',time:'fast'},{name:'Toast gourmet de salmón',style:'fitness',time:'fast'}],
+'pan+atun+aguacate':[{name:'Tosta de atún con aguacate',style:'fitness',time:'fast'},{name:'Sándwich de atún y guacamole',style:'fitness',time:'fast'},{name:'Wrap de atún con aguacate',style:'fitness',time:'fast'}],
+'pollo+arroz+aguacate':[{name:'Bowl de pollo con arroz y aguacate',style:'fitness',time:'fast'},{name:'Burrito bowl de pollo',style:'fitness',time:'fast'},{name:'Arroz con pollo y guacamole',style:'tradicional',time:'fast'},{name:'Bowl mexicano de pollo',style:'fitness',time:'fast'}],
+'pavo+arroz+aguacate':[{name:'Bowl de pavo con arroz y aguacate',style:'fitness',time:'fast'},{name:'Burrito bowl de pavo',style:'fitness',time:'fast'},{name:'Arroz fitness con pavo y aguacate',style:'fitness',time:'fast'}],
+'pollo+pasta+queso':[{name:'Pasta con pollo y queso gratinado',style:'tradicional',time:'elaborate'},{name:'Mac & cheese con pollo',style:'tradicional',time:'elaborate'},{name:'Pasta alfredo con pollo',style:'fitness',time:'fast'}],
+'pollo+patata+aguacate':[{name:'Bowl de pollo, patata y guacamole',style:'fitness',time:'fast'},{name:'Pollo asado con patata y aguacate',style:'fitness',time:'elaborate'},{name:'Ensalada templada de pollo con patata y aguacate',style:'fitness',time:'fast'}],
+'ternera+patata+queso':[{name:'Gratinado de ternera con patata y queso',style:'tradicional',time:'elaborate'},{name:'Pastel de carne con puré gratinado',style:'tradicional',time:'elaborate'},{name:'Patatas rellenas de ternera con queso',style:'tradicional',time:'elaborate'}],
+'huevo+arroz+aguacate':[{name:'Bowl de arroz con huevo y aguacate',style:'fitness',time:'fast'},{name:'Arroz frito con huevo y aguacate',style:'asiático',time:'fast'},{name:'Bibimbap con aguacate',style:'asiático',time:'fast'}],
+'huevo+patata+jamon':[{name:'Huevos rotos con jamón',style:'tradicional',time:'fast'},{name:'Tortilla de patata con jamón',style:'tradicional',time:'fast'},{name:'Patatas a lo pobre con huevo y jamón',style:'tradicional',time:'fast'},{name:'Revuelto de patata con jamón',style:'tradicional',time:'fast'}],
+'huevo+patata+queso':[{name:'Tortilla de patata con queso',style:'tradicional',time:'fast'},{name:'Huevos al horno con patata y queso',style:'tradicional',time:'elaborate'},{name:'Patatas gratinadas con huevo',style:'tradicional',time:'elaborate'}],
+'salmon+patata+aguacate':[{name:'Bowl de salmón con patata y aguacate',style:'fitness',time:'fast'},{name:'Salmón al horno con patata asada y guacamole',style:'mediterráneo',time:'elaborate'},{name:'Ensalada nórdica de salmón',style:'fitness',time:'fast'}],
+'pollo+legumbres+arroz':[{name:'Arroz con pollo y garbanzos',style:'tradicional',time:'elaborate'},{name:'Bowl completo de pollo, arroz y lentejas',style:'fitness',time:'fast'},{name:'Pollo al curry con arroz y legumbres',style:'asiático',time:'elaborate'}],
+'ternera+legumbres+patata':[{name:'Cocido madrileño completo',style:'tradicional',time:'elaborate'},{name:'Estofado de ternera con legumbres y patata',style:'tradicional',time:'elaborate'},{name:'Guiso de ternera completo',style:'tradicional',time:'elaborate'}],
+'jamon+patata':[{name:'Patatas con jamón al horno',style:'tradicional',time:'elaborate'},{name:'Croquetas de jamón con puré',style:'tradicional',time:'elaborate'},{name:'Ensalada de patata con jamón',style:'tradicional',time:'fast'},{name:'Huevos rotos con jamón y patatas',style:'tradicional',time:'fast'}],
+'jamon+arroz':[{name:'Arroz con jamón serrano',style:'tradicional',time:'fast'},{name:'Risotto de jamón ibérico',style:'mediterráneo',time:'elaborate'},{name:'Arroz al horno con jamón',style:'tradicional',time:'elaborate'}],
+'jamon+pasta':[{name:'Pasta con jamón serrano y tomate',style:'mediterráneo',time:'fast'},{name:'Espaguetis con jamón y aceite',style:'mediterráneo',time:'fast'},{name:'Carbonara de jamón',style:'tradicional',time:'fast'}],
+'tofu+arroz+aguacate':[{name:'Buddha bowl de tofu con arroz y aguacate',style:'fitness',time:'fast'},{name:'Sushi bowl vegano',style:'asiático',time:'fast'},{name:'Bowl de tofu teriyaki con arroz y aguacate',style:'asiático',time:'fast'}],
+'avena+yogur+platano':[{name:'Porridge de avena con yogur y plátano',style:'fitness',time:'fast'},{name:'Overnight oats con yogur y plátano',style:'fitness',time:'fast'},{name:'Bowl energético de avena completo',style:'fitness',time:'fast'},{name:'Smoothie bowl de avena y plátano',style:'fitness',time:'fast'}],
+'avena+yogur+fresas':[{name:'Porridge con yogur y fresas',style:'fitness',time:'fast'},{name:'Overnight oats con fresas y yogur',style:'fitness',time:'fast'},{name:'Bowl de avena, yogur y fresas',style:'fitness',time:'fast'}],
+'avena+yogur+miel':[{name:'Overnight oats con yogur y miel',style:'fitness',time:'fast'},{name:'Porridge con yogur griego y miel',style:'fitness',time:'fast'},{name:'Bowl de avena endulzado con miel',style:'fitness',time:'fast'}],
+'avena+platano+frutos_secos':[{name:'Porridge de avena con plátano y nueces',style:'fitness',time:'fast'},{name:'Overnight oats con plátano y almendras',style:'fitness',time:'fast'},{name:'Bowl energético pre-entreno',style:'fitness',time:'fast'}],
+'leche+avena':[{name:'Porridge tradicional con leche',style:'fitness',time:'fast'},{name:'Gachas de avena con leche caliente',style:'tradicional',time:'fast'},{name:'Overnight oats con leche',style:'fitness',time:'fast'}],
+'leche+avena+frutas':[{name:'Porridge con leche y frutas',style:'fitness',time:'fast'},{name:'Gachas de avena con leche y plátano',style:'fitness',time:'fast'},{name:'Overnight oats con leche y fresas',style:'fitness',time:'fast'}],
+'pan+aceite':[{name:'Pan con aceite de oliva virgen',style:'mediterráneo',time:'fast'},{name:'Tostada con aceite y sal',style:'mediterráneo',time:'fast'},{name:'Pan con aceite y tomate',style:'mediterráneo',time:'fast'}],
+'pan+aceite+jamon':[{name:'Tosta de jamón con aceite y tomate',style:'mediterráneo',time:'fast'},{name:'Desayuno andaluz completo',style:'mediterráneo',time:'fast'},{name:'Mollete con aceite y jamón',style:'tradicional',time:'fast'},{name:'Pan tumaca con jamón',style:'mediterráneo',time:'fast'}],
+'pollo+arroz+legumbres':[{name:'Arroz con pollo y garbanzos',style:'tradicional',time:'elaborate'},{name:'Paella de pollo con judías',style:'mediterráneo',time:'elaborate'},{name:'Bowl completo de pollo y legumbres',style:'fitness',time:'fast'}],
+'default':[{name:'Plato equilibrado personalizado',style:'fitness',time:'fast'},{name:'Bowl saludable mediterráneo',style:'mediterráneo',time:'fast'},{name:'Comida fitness balanceada',style:'fitness',time:'elaborate'},{name:'Plato nutritivo adaptado',style:'mediterráneo',time:'elaborate'}]
+};
+let currentMeals={},currentCategory='proteinas_bajas',useLegumbres=false,allFoods=[],searchTerm='';
+function init(){loadAllFoods();setupEventListeners();renderMeals();renderCategories();renderFoods();updateMacrosSummary()}
+function loadAllFoods(){allFoods=[];Object.keys(foodsDatabase).forEach(c=>{foodsDatabase[c].forEach(f=>allFoods.push({...f,categoryKey:c}))})}
+function setupEventListeners(){document.getElementById('legumbresToggle').addEventListener('click',toggleLegumbres);document.getElementById('saveBtn').addEventListener('click',openSaveModal);document.getElementById('loadBtn').addEventListener('click',openLoadModal);document.getElementById('clearBtn').addEventListener('click',clearAll);document.getElementById('searchInput').addEventListener('input',handleSearch);['saveModal','loadModal'].forEach(id=>{document.getElementById(id).addEventListener('click',e=>{if(e.target===e.currentTarget)e.target.classList.remove('active')})})}
+function toggleLegumbres(){useLegumbres=!useLegumbres;document.getElementById('legumbresToggle').classList.toggle('active');renderCategories();if(currentCategory==='legumbres'&&!useLegumbres)currentCategory='proteinas_bajas';renderFoods()}
+function handleSearch(e){searchTerm=e.target.value.toLowerCase();renderFoods()}
+function renderMeals(){const c=document.getElementById('mealsContainer');const meals=['☀️ Desayuno','🍽️ Comida','🏋️ Merienda (pre-entreno)','💪 Post entreno','🌙 Cena','😴 1h antes de dormir'];c.innerHTML=meals.map((m,i)=>'<div class="meal-slot" data-meal="'+i+'" id="meal-slot-'+i+'"><div class="meal-header"><span class="meal-title">'+m+'</span><span class="meal-macros" id="meal-'+i+'-macros">0 kcal | P: 0g | C: 0g | G: 0g</span></div><div class="meal-items" id="meal-'+i+'-items"></div><div class="suggestions" id="meal-'+i+'-suggestions" style="display:none"><div class="suggestions-title">👨‍🍳 Ideas de receta:</div><div class="suggestion-pills" id="meal-'+i+'-pills"></div></div></div>').join('');document.querySelectorAll('.meal-slot').forEach(s=>{s.addEventListener('dragover',allowDrop);s.addEventListener('dragleave',dragLeave);s.addEventListener('drop',dropHandler)});Object.keys(currentMeals).forEach(id=>{renderMealItems(id);generateSuggestions(id)})}
+function renderCategories(){const c=document.getElementById('categoryTabs');const cats=[{k:'proteinas_bajas',l:'🍗 Prot. Bajas'},{k:'proteinas_medias',l:'🥩 Prot. Medias'},{k:'proteinas_grasas',l:'🐟 Prot. Grasas'},{k:'huevos',l:'🥚 Huevos'},{k:'proteina_vegetal',l:'🌱 Prot. Vegetal'},{k:'cereales',l:'🌾 Cereales'},{k:'pan_farinaceos',l:'🍞 Pan'},{k:'legumbres',l:'🫘 Legumbres'},{k:'frutas',l:'🍎 Frutas'},{k:'dulces',l:'🍯 Dulces'},{k:'grasas_mono',l:'🥑 Grasas Mono'},{k:'grasas_poli',l:'🌰 Grasas Poli'},{k:'semillas',l:'🌿 Semillas'},{k:'lacteos_desnatados',l:'🥛 Lác. Desnat.'},{k:'lacteos_semidesnatados',l:'🧀 Lác. Semi'},{k:'lacteos_enteros',l:'🧈 Lác. Enteros'},{k:'yogures_proteicos',l:'💪 Yogures Prot.'}];c.innerHTML=cats.map(cat=>{if(cat.k==='legumbres'&&!useLegumbres)return '';return '<div class="category-tab '+(cat.k===currentCategory?'active':'')+'" onclick="changeCategory(\''+cat.k+'\')">'+cat.l+'</div>'}).join('')}
+function changeCategory(cat){currentCategory=cat;renderCategories();renderFoods()}
+function renderFoods(){const c=document.getElementById('foodsGrid');let foods;if(searchTerm){foods=allFoods.filter(f=>{if(f.categoryKey==='legumbres'&&!useLegumbres)return false;return f.name.toLowerCase().includes(searchTerm)})}else{if(currentCategory==='legumbres'&&!useLegumbres)foods=[];else foods=foodsDatabase[currentCategory]||[]}c.innerHTML=foods.map(food=>{const d=JSON.stringify(food);return '<div class="food-card '+food.category+'" draggable="true" data-food-json=\''+d.replace(/'/g,"&#39;")+'\'><button class="food-tap-add" onclick="event.stopPropagation();openTapPicker(this.parentElement)">+</button><div class="food-name">'+food.name+'</div><div class="food-portion">'+food.portion+' ('+food.gr+'g)</div><div class="food-macros"><div class="food-macro"><span class="food-macro-label">Kcal</span><span class="food-macro-value">'+food.kcal+'</span></div><div class="food-macro"><span class="food-macro-label">Prot</span><span class="food-macro-value">'+food.protein+'g</span></div><div class="food-macro"><span class="food-macro-label">Carbs</span><span class="food-macro-value">'+food.carbs+'g</span></div><div class="food-macro"><span class="food-macro-label">Grasas</span><span class="food-macro-value">'+food.fat+'g</span></div></div></div>'}).join('');c.querySelectorAll('.food-card').forEach(card=>{card.addEventListener('dragstart',dragStart);card.addEventListener('dragend',dragEnd);card.addEventListener('touchstart',touchStart,{passive:false});card.addEventListener('touchmove',touchMove,{passive:false});card.addEventListener('touchend',touchEnd,{passive:false});card.addEventListener('touchcancel',touchCancel,{passive:false})})}
+function allowDrop(ev){ev.preventDefault();ev.currentTarget.classList.add('drag-over')}
+function dragLeave(ev){ev.currentTarget.classList.remove('drag-over')}
+function dragStart(ev){ev.dataTransfer.setData('text/plain',ev.currentTarget.getAttribute('data-food-json').replace(/&#39;/g,"'"));ev.currentTarget.classList.add('dragging')}
+function dragEnd(ev){ev.currentTarget.classList.remove('dragging')}
+function dropHandler(ev){ev.preventDefault();ev.currentTarget.classList.remove('drag-over');try{const food=JSON.parse(ev.dataTransfer.getData('text/plain'));addFoodToMeal(ev.currentTarget.dataset.meal,food)}catch(e){console.error(e)}}
+let touchState={el:null,food:null,ghost:null,moved:false,startX:0,startY:0,scrolling:false};
+function touchStart(e){if(e.target.closest('.food-tap-add'))return;const card=e.currentTarget;const touch=e.touches[0];try{touchState.food=JSON.parse(card.getAttribute('data-food-json').replace(/&#39;/g,"'"))}catch(err){return}touchState.el=card;touchState.startX=touch.clientX;touchState.startY=touch.clientY;touchState.moved=false;touchState.scrolling=false}
+function touchMove(e){if(!touchState.el||touchState.scrolling)return;const touch=e.touches[0];const dx=Math.abs(touch.clientX-touchState.startX);const dy=Math.abs(touch.clientY-touchState.startY);if(!touchState.moved){if(dy>10&&dy>dx){touchState.scrolling=true;touchState.el=null;return}if(dx>10||dy>10){touchState.moved=true;touchState.el.classList.add('dragging');const ghost=document.createElement('div');ghost.className='touch-ghost';ghost.textContent=touchState.food.name;document.body.appendChild(ghost);touchState.ghost=ghost}else{return}}e.preventDefault();e.stopPropagation();if(touchState.ghost){touchState.ghost.style.left=(touch.clientX-60)+'px';touchState.ghost.style.top=(touch.clientY-40)+'px'}document.querySelectorAll('.meal-slot').forEach(s=>s.classList.remove('drag-over'));if(touchState.ghost)touchState.ghost.style.display='none';const el=document.elementFromPoint(touch.clientX,touch.clientY);if(touchState.ghost)touchState.ghost.style.display='';if(el){const slot=el.closest('.meal-slot');if(slot)slot.classList.add('drag-over')}}
+function touchEnd(e){if(!touchState.el){touchState={el:null,food:null,ghost:null,moved:false,startX:0,startY:0,scrolling:false};return}if(touchState.moved){const touch=e.changedTouches[0];if(touchState.ghost)touchState.ghost.style.display='none';const el=document.elementFromPoint(touch.clientX,touch.clientY);if(touchState.ghost)touchState.ghost.style.display='';if(el){const slot=el.closest('.meal-slot');if(slot&&touchState.food)addFoodToMeal(slot.dataset.meal,touchState.food)}}if(touchState.el)touchState.el.classList.remove('dragging');if(touchState.ghost){touchState.ghost.remove();touchState.ghost=null}document.querySelectorAll('.meal-slot').forEach(s=>s.classList.remove('drag-over'));touchState={el:null,food:null,ghost:null,moved:false,startX:0,startY:0,scrolling:false}}
+function touchCancel(e){if(touchState.el)touchState.el.classList.remove('dragging');if(touchState.ghost){touchState.ghost.remove();touchState.ghost=null}document.querySelectorAll('.meal-slot').forEach(s=>s.classList.remove('drag-over'));touchState={el:null,food:null,ghost:null,moved:false,startX:0,startY:0,scrolling:false}}
+let tapPickerFood=null;
+function openTapPicker(cardEl){try{tapPickerFood=JSON.parse(cardEl.getAttribute('data-food-json').replace(/&#39;/g,"'"))}catch(e){return}document.getElementById('tapFoodName').textContent=tapPickerFood.name+' ('+tapPickerFood.kcal+' kcal)';const mealNames=['☀️ Desayuno','🍽️ Comida','🏋️ Merienda','💪 Post entreno','🌙 Cena','😴 Antes de dormir'];document.getElementById('tapMealButtons').innerHTML=mealNames.map((m,i)=>'<button class="tap-meal-btn" onclick="tapAddToMeal('+i+')">'+m+'</button>').join('');document.getElementById('tapOverlay').classList.add('active');document.getElementById('tapMealPicker').classList.add('active');document.getElementById('tapOverlay').onclick=closeTapPicker}
+function closeTapPicker(){document.getElementById('tapOverlay').classList.remove('active');document.getElementById('tapMealPicker').classList.remove('active');tapPickerFood=null}
+function tapAddToMeal(mealId){if(tapPickerFood)addFoodToMeal(mealId,tapPickerFood);closeTapPicker()}
+function addFoodToMeal(mid,food){if(!currentMeals[mid])currentMeals[mid]=[];currentMeals[mid].push({...food,id:Date.now()+Math.random(),portions:1});renderMealItems(mid);updateMacrosSummary();generateSuggestions(mid)}
+function renderMealItems(mid){const c=document.getElementById('meal-'+mid+'-items');const items=currentMeals[mid]||[];c.innerHTML=items.map(item=>'<div class="meal-item"><div><div class="meal-item-name">'+item.name+'</div><div class="meal-item-info">'+Math.round(item.kcal*item.portions)+' kcal | P: '+(item.protein*item.portions).toFixed(1)+'g | C: '+(item.carbs*item.portions).toFixed(1)+'g | G: '+(item.fat*item.portions).toFixed(1)+'g</div></div><div class="meal-item-portion"><button class="portion-btn" onclick="adjustPortion(\''+mid+'\',\''+item.id+'\',-0.5)">−</button><span class="portion-display">×'+item.portions+'</span><button class="portion-btn" onclick="adjustPortion(\''+mid+'\',\''+item.id+'\',0.5)">+</button><button class="remove-btn" onclick="removeFood(\''+mid+'\',\''+item.id+'\')">✕</button></div></div>').join('');updateMealMacros(mid)}
+function adjustPortion(mid,iid,d){const item=currentMeals[mid].find(i=>i.id==iid);if(item){item.portions=Math.max(0.5,item.portions+d);renderMealItems(mid);updateMacrosSummary()}}
+function removeFood(mid,iid){currentMeals[mid]=currentMeals[mid].filter(i=>i.id!=iid);renderMealItems(mid);updateMacrosSummary();generateSuggestions(mid)}
+function updateMealMacros(mid){const items=currentMeals[mid]||[];const t=items.reduce((a,i)=>({kcal:a.kcal+i.kcal*i.portions,protein:a.protein+i.protein*i.portions,carbs:a.carbs+i.carbs*i.portions,fat:a.fat+i.fat*i.portions}),{kcal:0,protein:0,carbs:0,fat:0});document.getElementById('meal-'+mid+'-macros').textContent=Math.round(t.kcal)+' kcal | P: '+t.protein.toFixed(1)+'g | C: '+t.carbs.toFixed(1)+'g | G: '+t.fat.toFixed(1)+'g'}
+function updateMacrosSummary(){const all=Object.values(currentMeals).flat();const t=all.reduce((a,i)=>({kcal:a.kcal+i.kcal*i.portions,protein:a.protein+i.protein*i.portions,carbs:a.carbs+i.carbs*i.portions,fat:a.fat+i.fat*i.portions}),{kcal:0,protein:0,carbs:0,fat:0});document.getElementById('totalCalories').textContent=Math.round(t.kcal);document.getElementById('totalProtein').textContent=t.protein.toFixed(1);document.getElementById('totalCarbs').textContent=t.carbs.toFixed(1);document.getElementById('totalFats').textContent=t.fat.toFixed(1);const tc=+document.getElementById('targetCalories').textContent,tp=+document.getElementById('targetProtein').textContent,tca=+document.getElementById('targetCarbs').textContent,tf=+document.getElementById('targetFats').textContent;document.getElementById('caloriesBar').style.width=Math.min(100,t.kcal/tc*100)+'%';document.getElementById('proteinBar').style.width=Math.min(100,t.protein/tp*100)+'%';document.getElementById('carbsBar').style.width=Math.min(100,t.carbs/tca*100)+'%';document.getElementById('fatsBar').style.width=Math.min(100,t.fat/tf*100)+'%'}
+function generateSuggestions(mid){const items=currentMeals[mid]||[];if(items.length===0){document.getElementById('meal-'+mid+'-suggestions').style.display='none';return}const container=document.getElementById('meal-'+mid+'-pills');const sugDiv=document.getElementById('meal-'+mid+'-suggestions');const names=items.map(i=>i.name);const recipes=findRecipes(names);if(recipes&&recipes.length>0){container.innerHTML=recipes.map(r=>'<div class="suggestion-pill"><span>'+r.name+'</span><div class="suggestion-meta"><span class="suggestion-badge badge-'+r.time+'">'+(r.time==='fast'?'Rápida':'Elaborada')+'</span><span class="suggestion-badge badge-style">'+r.style+'</span></div></div>').join('');sugDiv.style.display='block'}else{sugDiv.style.display='none'}}
+function findRecipes(foodNames){
+const names=foodNames.map(n=>n.toLowerCase().trim());
+const exact=t=>names.some(n=>t.some(x=>n===x.toLowerCase()));
+// Classify all detected ingredients into categories
+const detected=[];
+// Proteins
+if(exact(['Pollo']))detected.push('pollo');
+if(exact(['Pavo']))detected.push('pavo');
+if(exact(['Solomillo de ternera','Filete de ternera']))detected.push('ternera');
+if(exact(['Solomillo de cerdo','Lomo de cerdo o pavo']))detected.push('cerdo');
+if(exact(['Conejo']))detected.push('conejo');
+if(exact(['Lubina','Gallo','Rape','Merluza','Bacalao']))detected.push('pescado');
+if(exact(['Salmón']))detected.push('salmon');
+if(exact(['Sardinas']))detected.push('sardinas');
+if(exact(['Atún en lata']))detected.push('atun');
+if(exact(['Huevo entero','Clara de huevo','Claras de huevo','Huevos de codorniz']))detected.push('huevo');
+if(exact(['Jamón cocido','Jamón serrano','Cecina']))detected.push('jamon');
+if(exact(['Tofu']))detected.push('tofu');
+if(exact(['Seitán']))detected.push('seitan');
+// Carbs
+if(exact(['Arroz integral','Arroz Basmati']))detected.push('arroz');
+if(exact(['Pasta integral','Gnocchi']))detected.push('pasta');
+if(exact(['Patata']))detected.push('patata');
+if(exact(['Quinoa']))detected.push('quinoa');
+if(exact(['Lentejas','Garbanzos','Judías','Habas','Guisantes']))detected.push('legumbres');
+if(exact(['Copos de avena','Copos de espelta','Copos de maíz','Tortitas de avena','Avena masticada']))detected.push('avena');
+if(exact(['Pan blanco','Pan de molde integral','Pan biscotes','Wraps integral','Pan de hamburguesa']))detected.push('pan');
+// Fruits
+if(exact(['Plátano']))detected.push('platano');
+if(exact(['Fresas']))detected.push('fresas');
+if(exact(['Arándanos']))detected.push('arandanos');
+if(exact(['Manzana','Naranja','Frambuesas','Cerezas','Albaricoques secos']))detected.push('frutas');
+// Others
+if(exact(['Yogur natural 0%','Yogur sabores','Yogur natural','Yogur griego','Yogur +10 proteínas','Kéfir']))detected.push('yogur');
+if(exact(['Queso Philadelphia light','Queso Philadelphia']))detected.push('queso');
+if(exact(['Aguacate']))detected.push('aguacate');
+if(exact(['Nueces','Avellanas','Almendras','Pistachos','Cacahuetes']))detected.push('frutos_secos');
+if(exact(['Mantequilla']))detected.push('mantequilla');
+if(exact(['Miel']))detected.push('miel');
+if(exact(['Aceite de oliva']))detected.push('aceite');
+if(exact(['Leche desnatada','Leche semidesnatada','Leche entera']))detected.push('leche');
+if(detected.length===0)return R['default'];
+// Try all possible key combinations from detected ingredients
+// Start with 3-ingredient combos (most specific), then 2, then 1
+const tried=new Set();
+function tryKey(parts){const key=parts.join('+');if(tried.has(key))return null;tried.add(key);return R[key]||null}
+// 3-ingredient combinations
+if(detected.length>=3){
+for(let i=0;i<detected.length;i++)for(let j=i+1;j<detected.length;j++)for(let k=j+1;k<detected.length;k++){
+const combos=[[detected[i],detected[j],detected[k]],[detected[i],detected[k],detected[j]],[detected[j],detected[i],detected[k]],[detected[j],detected[k],detected[i]],[detected[k],detected[i],detected[j]],[detected[k],detected[j],detected[i]]];
+for(const c of combos){const r=tryKey(c);if(r)return r}}}
+// 2-ingredient combinations
+if(detected.length>=2){
+for(let i=0;i<detected.length;i++)for(let j=i+1;j<detected.length;j++){
+const combos=[[detected[i],detected[j]],[detected[j],detected[i]]];
+for(const c of combos){const r=tryKey(c);if(r)return r}}}
+// Single ingredient
+for(const d of detected){const r=tryKey([d]);if(r)return r}
+// Also try 'pescado_blanco' alias
+if(detected.includes('pescado')){const r=R['pescado_blanco'];if(r)return r}
+return R['default']}
+function openSaveModal(){document.getElementById('saveModal').classList.add('active');document.getElementById('dietName').focus()}
+function closeSaveModal(){document.getElementById('saveModal').classList.remove('active')}
+function openLoadModal(){const saved=JSON.parse(localStorage.getItem('nutriplan_diets')||'[]');const c=document.getElementById('savedDietsList');if(saved.length===0){c.innerHTML='<p style="text-align:center;color:var(--text-tertiary);padding:20px">No hay dietas guardadas</p>'}else{c.innerHTML=saved.map((d,i)=>'<div class="saved-diet-item" onclick="loadDiet('+i+')"><div><div class="saved-diet-name">'+d.name+'</div><div class="saved-diet-date">'+new Date(d.date).toLocaleDateString('es-ES')+'</div></div><button class="btn btn-danger" onclick="event.stopPropagation();deleteDiet('+i+')" style="padding:5px 10px;font-size:11px">Eliminar</button></div>').join('')}document.getElementById('loadModal').classList.add('active')}
+function closeLoadModal(){document.getElementById('loadModal').classList.remove('active')}
+function saveDiet(){const name=document.getElementById('dietName').value.trim();if(!name){alert('Introduce un nombre');return}const saved=JSON.parse(localStorage.getItem('nutriplan_diets')||'[]');saved.push({name:name,date:new Date().toISOString(),meals:currentMeals,useLegumbres:useLegumbres});localStorage.setItem('nutriplan_diets',JSON.stringify(saved));document.getElementById('dietName').value='';closeSaveModal();alert('¡Dieta guardada!')}
+function loadDiet(idx){const saved=JSON.parse(localStorage.getItem('nutriplan_diets')||'[]');const d=saved[idx];if(d){currentMeals=d.meals;useLegumbres=d.useLegumbres;const toggle=document.getElementById('legumbresToggle');useLegumbres?toggle.classList.add('active'):toggle.classList.remove('active');renderMeals();renderCategories();updateMacrosSummary();Object.keys(currentMeals).forEach(id=>generateSuggestions(id))}closeLoadModal()}
+function deleteDiet(idx){if(confirm('¿Eliminar esta dieta?')){const saved=JSON.parse(localStorage.getItem('nutriplan_diets')||'[]');saved.splice(idx,1);localStorage.setItem('nutriplan_diets',JSON.stringify(saved));openLoadModal()}}
+function clearAll(){if(confirm('¿Limpiar toda la dieta?')){currentMeals={};renderMeals();updateMacrosSummary()}}
+init();
+</script>
+</body>
+</html>
